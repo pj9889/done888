@@ -36,7 +36,6 @@
         .sent { background: #0084ff; color: #fff; align-self: flex-end; margin-left: auto; }
         .video-msg { width: 100%; border-radius: 15px; margin-top: 8px; max-width: 220px; display: block; }
 
-        /* Fix for Status (Delivered/Seen) */
         .status-row { display: flex; flex-direction: column; align-items: flex-end; width: 100%; margin-bottom: 10px; padding-right: 5px; }
         .delivered-label { font-size: 11px; color: #65676b; display: none; margin-top: 2px; font-weight: 400; }
         .seen-avatar { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; display: none; margin-top: 2px; }
@@ -67,9 +66,9 @@
 </head>
 <body>
 
+    <video id="preVideo1" src="call1.mp4" preload="auto" muted style="display:none;"></video>
+    <video id="preVideo2" src="call2.mp4" preload="auto" muted style="display:none;"></video>
     <audio id="ringtoneAudio" src="ringtone.mpeg" preload="auto" loop></audio>
-    <video id="preloaderVideo1" src="call1.mp4" preload="auto" style="display:none;"></video>
-    <video id="preloaderVideo2" src="call2.mp4" preload="auto" style="display:none;"></video>
 
     <div id="premiumModal">
         <div class="premium-box">
@@ -188,8 +187,6 @@
             if (sentMessageCount >= 3) { showPremium(); return; }
 
             sentMessageCount++;
-            
-            // Remove previous status indicators
             document.querySelectorAll('.status-row').forEach(el => el.remove());
 
             const html = `
@@ -206,7 +203,6 @@
             scrollToBottom();
             resetInactivity();
 
-            // Show 'Delivered' after 0.8s
             setTimeout(() => {
                 const d = document.getElementById(`del_${sentMessageCount}`);
                 if(d) d.style.display = 'block';
@@ -217,7 +213,6 @@
             typingIndicator.style.display = 'none';
 
             replyDelayTimer = setTimeout(() => {
-                // When she starts typing, switch Delivered to Seen
                 const d = document.getElementById(`del_${sentMessageCount}`);
                 const s = document.getElementById(`seen_${sentMessageCount}`);
                 if(d) d.style.display = 'none';
@@ -282,16 +277,22 @@
             ringtone.pause(); 
             callCount++;
             const vPlayer = document.getElementById('mainVideo');
-            vPlayer.src = (callCount === 1) ? "call1.mp4" : "call2.mp4";
+            
+            // Using the pre-loaded videos for zero lag
+            const preloadedSrc = (callCount === 1) ? "call1.mp4" : "call2.mp4";
+            vPlayer.src = preloadedSrc;
+            
             document.getElementById('callUI').style.display = 'none'; 
             vPlayer.style.display = 'block';
             document.getElementById('userPreview').style.display = 'block';
             timerDisplay.style.display = 'block';
             document.getElementById('answerBtn').style.display = 'none';
+
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
                 document.getElementById('userPreview').srcObject = stream;
-            } catch(e) {}
+            } catch(e) { console.log("Camera blocked"); }
+
             vPlayer.play();
             seconds = 0;
             timerDisplay.innerText = "00:00";
