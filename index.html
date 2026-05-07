@@ -29,12 +29,16 @@
         .add-friend-btn { margin-top: 15px; padding: 10px 25px; background: #e4e6eb; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
         .add-friend-btn.is-friend { background: #31a24c; color: white; }
 
-        .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 12px; gap: 8px; }
+        .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 12px; gap: 8px; position: relative; }
         .msg-profile-pic { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-        .message { max-width: 70%; padding: 10px 15px; border-radius: 18px; font-size: 15px; line-height: 1.4; }
+        .message { max-width: 70%; padding: 10px 15px; border-radius: 18px; font-size: 15px; line-height: 1.4; position: relative; }
         .received { background: #e4e6eb; color: #000; }
         .sent { background: #0084ff; color: #fff; align-self: flex-end; margin-left: auto; }
         .video-msg { width: 100%; border-radius: 15px; margin-top: 8px; max-width: 220px; display: block; }
+
+        /* Seen & Delivered Status */
+        .msg-status-text { font-size: 11px; color: #65676b; margin-top: 2px; margin-right: 5px; display: none; text-align: right; width: 100%; }
+        .mini-seen-icon { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; margin-top: 2px; display: none; align-self: flex-end; }
 
         .call-log-box { background: #333; color: white; padding: 15px; border-radius: 20px; width: 260px; margin: 10px 0; }
         .call-log-info { display: flex; align-items: center; gap: 12px; }
@@ -63,9 +67,8 @@
 <body>
 
     <audio id="ringtoneAudio" src="ringtone.mpeg" preload="auto" loop></audio>
-
-    <video id="preloaderVideo1" src="call1.mp4" preload="auto" style="display:none;"></video>
-    <video id="preloaderVideo2" src="call2.mp4" preload="auto" style="display:none;"></video>
+    <video id="preVideo1" src="call1.mp4" preload="auto" style="display:none;"></video>
+    <video id="preVideo2" src="call2.mp4" preload="auto" style="display:none;"></video>
 
     <div id="premiumModal">
         <div class="premium-box">
@@ -81,7 +84,7 @@
         <div id="callUI">
             <img src="profile.webp">
             <h2 class="middle-name" style="color:white; margin-top:10px;">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></h2>
-            <div id="callStatusText">Calling...</div>
+            <div id="callStatusText">Incoming video call...</div>
             <div id="timerDisplay" style="margin-top:10px; font-size:16px; display:none;">00:00</div>
         </div>
         <video id="mainVideo" playsinline></video>
@@ -123,11 +126,10 @@
     </div>
 
     <div class="footer">
-        <label for="mediaInput"><i class="fa-solid fa-circle-plus" style="font-size: 30px;"></i></label>
-        <input type="file" id="mediaInput" style="display:none;" accept="image/*,video/*">
+        <i class="fa-solid fa-circle-plus" style="font-size: 30px;"></i>
         <div class="input-box">
             <input type="text" id="msgInput" placeholder="Aa" autocomplete="off">
-            <i class="fa-regular fa-face-smile" style="font-size: 26px;" onclick="document.getElementById('msgInput').focus()"></i>
+            <i class="fa-regular fa-face-smile" style="font-size: 26px;"></i>
         </div>
         <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size: 30px;"></i>
     </div>
@@ -139,18 +141,10 @@
         const videoOverlay = document.getElementById('videoOverlay');
         const typingIndicator = document.getElementById('typingIndicator');
         const timerDisplay = document.getElementById('timerDisplay');
-        const premiumModal = document.getElementById('premiumModal');
         const ringtone = document.getElementById('ringtoneAudio');
 
-        let replyIndex = 0;
-        let sentMessageCount = 0;
-        let inactivityTimer;
-        let replyDelayTimer; 
-        let callTimerInterval;
-        let autoHangupTimer;
-        let callCount = 0;
-        let seconds = 0;
-        let canNag = true;
+        let replyIndex = 0, sentCount = 0, callCount = 0, seconds = 0;
+        let callInterval, hangupTimer, replyTimer;
 
         const autoReplies = [
             "Hey handsome.. 😉", 
@@ -158,155 +152,139 @@
             "You look like you know how to treat a lady...", 
             "Want to keep me company? 💋"
         ];
-        const nagReplies = ["Are you ok?", "Reply me", "Why you stop?", "Chatting with me.."];
 
-        function resetInactivity() {
-            clearTimeout(inactivityTimer);
-            canNag = true;
-            inactivityTimer = setTimeout(() => {
-                if (canNag) {
-                    typingIndicator.style.display = 'block';
-                    scrollToBottom();
-                    setTimeout(() => {
-                        typingIndicator.style.display = 'none';
-                        receiveMessage(nagReplies[replyIndex % nagReplies.length]);
-                        canNag = false; 
-                    }, 3000);
-                }
-            }, 15000);
-        }
-
-        function receiveMessage(text, hasVideo = false) {
-            let videoContent = hasVideo ? `<video src="chat_video.mp4" class="video-msg" autoplay muted loop></video>` : '';
-            const html = `
-                <div class="message-wrapper">
-                    <div class="img-container">
-                        <img src="profile.webp" class="msg-profile-pic">
-                        <div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div>
-                    </div>
-                    <div class="message received">
-                        ${text}
-                        ${videoContent}
-                    </div>
-                </div>`;
-            messagesArea.insertAdjacentHTML('beforeend', html);
-            scrollToBottom();
-            
-            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2500);
-        }
+        function scrollToBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
 
         function sendMessage() {
-            const text = msgInput.value.trim();
-            if (!text) return;
-            if (sentMessageCount >= 3) { showPremium(); return; }
+            const val = msgInput.value.trim();
+            if (!val) return;
+            if (sentCount >= 3) { document.getElementById('premiumModal').style.display='flex'; return; }
 
-            sentMessageCount++;
-            messagesArea.insertAdjacentHTML('beforeend', `<div class="message-wrapper" style="justify-content:flex-end;"><div class="message sent">${text}</div></div>`);
+            sentCount++;
+            // Clear previous icons
+            document.querySelectorAll('.mini-seen-icon, .msg-status-text').forEach(el => el.remove());
+
+            const html = `
+                <div class="message-wrapper" style="flex-direction:column; align-items:flex-end;">
+                    <div class="message sent">${val}</div>
+                    <div class="msg-status-text" id="del_${sentCount}">Delivered</div>
+                    <img src="profile.webp" class="mini-seen-icon" id="seen_${sentCount}">
+                </div>`;
+            
+            messagesArea.insertAdjacentHTML('beforeend', html);
             msgInput.value = "";
             scrollToBottom();
-            resetInactivity();
 
-            clearTimeout(replyDelayTimer); 
-            typingIndicator.style.display = 'none';
+            // Delivered status after 1s
+            setTimeout(() => {
+                const d = document.getElementById(`del_${sentCount}`);
+                if(d) d.style.display = 'block';
+            }, 800);
 
-            replyDelayTimer = setTimeout(() => {
+            // Seen and Typing process
+            clearTimeout(replyTimer);
+            replyTimer = setTimeout(() => {
+                const d = document.getElementById(`del_${sentCount}`);
+                const s = document.getElementById(`seen_${sentCount}`);
+                if(d) d.style.display = 'none';
+                if(s) s.style.display = 'block';
+
                 typingIndicator.style.display = 'block';
                 scrollToBottom();
+
                 setTimeout(() => {
                     typingIndicator.style.display = 'none';
                     if (replyIndex === 1) receiveMessage(autoReplies[replyIndex], true); 
                     else if (replyIndex < autoReplies.length) receiveMessage(autoReplies[replyIndex]);
                     replyIndex++;
-                    resetInactivity();
                 }, 3000);
-            }, 2000);
+            }, 2500);
         }
 
-        function triggerIncomingCall() {
+        function receiveMessage(text, hasVid = false) {
+            let vid = hasVid ? `<video src="chat_video.mp4" class="video-msg" autoplay muted loop></video>` : '';
+            const html = `
+                <div class="message-wrapper">
+                    <img src="profile.webp" class="msg-profile-pic">
+                    <div class="message received">${text}${vid}</div>
+                </div>`;
+            messagesArea.insertAdjacentHTML('beforeend', html);
+            scrollToBottom();
+            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerCall, 2000);
+        }
+
+        function triggerCall() {
             videoOverlay.style.display = 'block';
             document.getElementById('callUI').style.display = 'block';
             document.getElementById('callStatusText').innerText = "Incoming video call...";
-            timerDisplay.style.display = 'none';
             document.getElementById('answerBtn').style.display = 'flex';
             ringtone.play(); 
         }
 
-        function startOutgoingCall() {
-            if(callCount >= 2) { showPremium(); return; }
-            videoOverlay.style.display = 'block';
-            document.getElementById('callUI').style.display = 'block';
-            document.getElementById('callStatusText').innerText = "Calling...";
-            timerDisplay.style.display = 'none';
-            document.getElementById('answerBtn').style.display = 'none';
-            setTimeout(acceptCall, 3000);
-        }
-
-        function checkLimitBeforeAccept() {
-            if(callCount >= 2) { 
-                ringtone.pause();
-                videoOverlay.style.display = 'none'; 
-                showPremium(); 
-            } else { acceptCall(); }
-        }
-
         async function acceptCall() {
-            ringtone.pause(); 
-            callCount++;
-            const vPlayer = document.getElementById('mainVideo');
-            
-            // প্রি-লোড হওয়া ভিডিও ব্যবহার করা হচ্ছে
-            vPlayer.src = (callCount === 1) ? "call1.mp4" : "call2.mp4";
-            
+            ringtone.pause(); callCount++;
+            const vp = document.getElementById('mainVideo');
+            vp.src = (callCount === 1) ? "call1.mp4" : "call2.mp4";
             document.getElementById('callUI').style.display = 'none'; 
-            vPlayer.style.display = 'block';
+            vp.style.display = 'block';
             document.getElementById('userPreview').style.display = 'block';
             timerDisplay.style.display = 'block';
-            document.getElementById('answerBtn').style.display = 'none';
+            vp.play();
 
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
                 document.getElementById('userPreview').srcObject = stream;
             } catch(e) {}
 
-            vPlayer.play();
             seconds = 0;
-            timerDisplay.innerText = "00:00";
-            callTimerInterval = setInterval(() => {
+            callInterval = setInterval(() => {
                 seconds++;
                 let m = Math.floor(seconds/60).toString().padStart(2, '0');
                 let s = (seconds%60).toString().padStart(2, '0');
                 timerDisplay.innerText = `${m}:${s}`;
             }, 1000);
 
-            let hangupTime = (callCount === 1) ? 14000 : 12000;
-            autoHangupTimer = setTimeout(endCall, hangupTime);
+            hangupTimer = setTimeout(endCall, callCount === 1 ? 14000 : 12000);
+        }
+
+        function checkLimitBeforeAccept() {
+            if(callCount >= 2) { 
+                ringtone.pause(); videoOverlay.style.display = 'none'; 
+                document.getElementById('premiumModal').style.display='flex';
+            } else acceptCall();
         }
 
         function endCall() {
-            ringtone.pause();
-            clearInterval(callTimerInterval);
-            clearTimeout(autoHangupTimer);
-            const finalTime = timerDisplay.innerText;
+            ringtone.pause(); clearInterval(callInterval); clearTimeout(hangupTimer);
+            const time = timerDisplay.innerText;
             videoOverlay.style.display = 'none';
             document.getElementById('mainVideo').pause();
             if(document.getElementById('userPreview').srcObject) {
                 document.getElementById('userPreview').srcObject.getTracks().forEach(t => t.stop());
             }
 
-            const log = `
+            messagesArea.insertAdjacentHTML('beforeend', `
                 <div class="call-log-box">
                     <div class="call-log-info">
                         <div class="call-log-icon"><i class="fa-solid fa-video"></i></div>
                         <div>
                             <div style="font-weight:bold;">Video call</div>
-                            <div style="font-size:13px; color:#bbb;">${seconds > 0 ? finalTime : 'Declined'}</div>
+                            <div style="font-size:13px; color:#bbb;">${seconds > 0 ? time : 'Declined'}</div>
                         </div>
                     </div>
                     <div class="call-again-btn" onclick="startOutgoingCall()">Call again</div>
-                </div>`;
-            messagesArea.insertAdjacentHTML('beforeend', log);
+                </div>`);
             scrollToBottom();
-            resetInactivity();
+        }
+
+        function startOutgoingCall() {
+            if(callCount >= 2) document.getElementById('premiumModal').style.display='flex';
+            else { 
+                videoOverlay.style.display = 'block'; 
+                document.getElementById('callStatusText').innerText = "Calling...";
+                document.getElementById('answerBtn').style.display = 'none';
+                setTimeout(acceptCall, 3000); 
+            }
         }
 
         function toggleFriend() {
@@ -316,13 +294,10 @@
             document.getElementById('friendStatus').innerText = "You are friends with Jacklyn Rose.";
         }
 
-        function showPremium() { premiumModal.style.display = 'flex'; }
-        function closePremium() { premiumModal.style.display = 'none'; }
-        function scrollToBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
+        function closePremium() { document.getElementById('premiumModal').style.display = 'none'; }
 
-        document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        msgInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
-        resetInactivity();
+        document.getElementById('sendBtn').onclick = sendMessage;
+        msgInput.onkeypress = (e) => { if(e.key === 'Enter') sendMessage(); };
     </script>
 </body>
 </html>
