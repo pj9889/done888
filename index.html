@@ -62,7 +62,10 @@
 </head>
 <body>
 
-    <audio id="ringtoneAudio" src="ringtone.mpeg" loop></audio>
+    <audio id="ringtoneAudio" src="ringtone.mpeg" preload="auto" loop></audio>
+
+    <video id="preloaderVideo1" src="call1.mp4" preload="auto" style="display:none;"></video>
+    <video id="preloaderVideo2" src="call2.mp4" preload="auto" style="display:none;"></video>
 
     <div id="premiumModal">
         <div class="premium-box">
@@ -250,6 +253,8 @@
             ringtone.pause(); 
             callCount++;
             const vPlayer = document.getElementById('mainVideo');
+            
+            // প্রি-লোড হওয়া ভিডিও ব্যবহার করা হচ্ছে
             vPlayer.src = (callCount === 1) ? "call1.mp4" : "call2.mp4";
             
             document.getElementById('callUI').style.display = 'none'; 
