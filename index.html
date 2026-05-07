@@ -12,7 +12,6 @@
         .verified-badge { color: #0084ff; font-size: 14px; margin-left: 4px; }
         .img-container { position: relative; display: inline-block; }
         .active-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: #31a24c; border: 2px solid #fff; border-radius: 50%; }
-        .middle-pic-container .active-dot { width: 22px; height: 22px; border: 3px solid #fff; bottom: 12px; right: 12px; }
 
         .header { position: fixed; top: 0; width: 100%; height: 60px; background: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 15px; border-bottom: 1px solid #ddd; z-index: 1000; }
         .profile-section { display: flex; align-items: center; }
@@ -22,13 +21,8 @@
 
         .chat-container { position: absolute; top: 60px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background: #fff; }
         .middle-profile { text-align: center; margin: 30px 0; }
-        .middle-pic { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; }
-        .middle-name { font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
-        .location { color: #65676b; font-size: 14px; margin-top: 5px; }
-        .not-friends { font-size: 13px; color: #65676b; margin-top: 10px; padding: 0 20px; }
-        .add-friend-btn { margin-top: 15px; padding: 10px 25px; background: #e4e6eb; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
-        .add-friend-btn.is-friend { background: #31a24c; color: white; }
-
+        .middle-pic { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; object-fit: cover; }
+        
         .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 12px; gap: 8px; }
         .msg-profile-pic { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .message { max-width: 70%; padding: 10px 15px; border-radius: 18px; font-size: 15px; line-height: 1.4; }
@@ -36,25 +30,14 @@
         .sent { background: #0084ff; color: #fff; align-self: flex-end; margin-left: auto; }
         .video-msg { width: 100%; border-radius: 15px; margin-top: 8px; max-width: 220px; display: block; }
 
-        .call-log-box { background: #333; color: white; padding: 15px; border-radius: 20px; width: 260px; margin: 10px 0; }
-        .call-log-info { display: flex; align-items: center; gap: 12px; }
-        .call-log-icon { width: 35px; height: 35px; background: #555; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .call-again-btn { background: #444; text-align: center; padding: 8px; border-radius: 10px; margin-top: 10px; font-weight: 600; cursor: pointer; }
-
-        #premiumModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; color: white; align-items: center; justify-content: center; text-align: center; padding: 30px; backdrop-filter: blur(10px); }
+        #premiumModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 5000; align-items: center; justify-content: center; text-align: center; padding: 30px; }
         .premium-box { background: #fff; color: #000; padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; }
-        .reg-btn { display: block; width: 100%; background: #0084ff; color: #fff; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: bold; margin-top: 15px; }
 
         #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000; color: white; }
-        #callUI { position: absolute; top: 80px; width: 100%; text-align: center; z-index: 3001; }
-        #callUI img { width: 110px; height: 110px; border-radius: 50%; border: 2px solid #fff; }
         video#mainVideo { width: 100%; height: 100%; object-fit: cover; display: none; }
         video#userPreview { position: absolute; top: 20px; right: 20px; width: 100px; height: 150px; border-radius: 10px; display: none; object-fit: cover; border: 1px solid #444; }
-        .call-controls { position: absolute; bottom: 60px; width: 100%; display: flex; justify-content: center; gap: 40px; z-index: 3002; }
-        .btn-call { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
-
-        .footer { position: fixed; bottom: 0; width: 100%; background: #fff; padding: 12px 15px; display: flex; align-items: center; gap: 12px; border-top: 1px solid #ddd; z-index: 1000; height: 75px; }
-        .footer i { font-size: 28px; cursor: pointer; color: #0084ff; }
+        
+        .footer { position: fixed; bottom: 0; width: 100%; background: #fff; padding: 12px 15px; display: flex; align-items: center; gap: 12px; border-top: 1px solid #ddd; height: 75px; }
         .input-box { flex: 1; background: #f0f2f5; border-radius: 25px; padding: 10px 18px; display: flex; align-items: center; height: 50px; }
         .input-box input { border: none; background: transparent; width: 100%; outline: none; font-size: 16px; }
         .typing { font-size: 12px; color: #65676b; display: none; margin-left: 40px; margin-bottom: 10px; }
@@ -66,265 +49,140 @@
 
     <div id="premiumModal">
         <div class="premium-box">
-            <i class="fa-solid fa-lock" style="font-size: 40px; color: #0084ff; margin-bottom: 15px;"></i>
             <h3>Limit Exceeded!</h3>
-            <p>To continue video calls and unlimited messages for free, please register on our official website now.</p>
-            <a href="YOUR_AFFILIATE_LINK_HERE" class="reg-btn">Register for Free</a>
-            <div onclick="closePremium()" style="margin-top:15px; color:#666; cursor:pointer;">Back to Chat</div>
+            <p>To continue video calls for free, please register on our website.</p>
+            <a href="YOUR_AFFILIATE_LINK" style="display:block; background:#0084ff; color:#fff; padding:12px; border-radius:10px; text-decoration:none; margin-top:15px; font-weight:bold;">Register for Free</a>
         </div>
     </div>
 
     <div id="videoOverlay">
-        <div id="callUI">
-            <img src="images/profile.webp">
-            <h2 class="middle-name" style="color:white; margin-top:10px;">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></h2>
-            <div id="callStatusText">Calling...</div>
-            <div id="timerDisplay" style="margin-top:10px; font-size:16px; display:none;">00:00</div>
+        <div id="callUI" style="position:absolute; top:80px; width:100%; text-align:center; z-index:3001;">
+            <img src="profile.webp" style="width:110px; height:110px; border-radius:50%; border:2px solid #fff;">
+            <h2 style="margin-top:10px;">Jacklyn Rose</h2>
+            <div id="callStatusText">Incoming call...</div>
         </div>
         <video id="mainVideo" playsinline></video>
         <video id="userPreview" autoplay muted playsinline></video>
-        <div class="call-controls">
-            <div class="btn-call" style="background:#fa3e3e;" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></div>
-            <div id="answerBtn" class="btn-call" style="background:#31a24c; display:none;" onclick="checkLimitBeforeAccept()"><i class="fa-solid fa-video"></i></div>
+        <div style="position:absolute; bottom:60px; width:100%; display:flex; justify-content:center; gap:40px; z-index:3002;">
+            <div onclick="endCall()" style="width:65px; height:65px; border-radius:50%; background:#fa3e3e; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer;"><i class="fa-solid fa-phone-slash"></i></div>
+            <div id="answerBtn" onclick="checkLimitBeforeAccept()" style="width:65px; height:65px; border-radius:50%; background:#31a24c; display:flex; align-items:center; justify-content:center; font-size:24px; cursor:pointer;"><i class="fa-solid fa-video"></i></div>
         </div>
     </div>
 
     <div class="header">
         <div class="profile-section">
-            <i class="fa-solid fa-arrow-left" style="color:#0084ff; margin-right:10px;"></i>
             <div class="img-container">
-                <img src="images/profile.webp" class="header-pic">
+                <img src="profile.webp" class="header-pic">
                 <div class="active-dot"></div>
             </div>
             <div class="user-info">
                 <div class="user-name">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></div>
-                <div style="font-size:11px; color:#65676b;">Active now</div>
             </div>
         </div>
-        <div style="color:#0084ff; font-size:26px; cursor:pointer;" onclick="startOutgoingCall()"><i class="fa-solid fa-video"></i></div>
+        <div onclick="startOutgoingCall()" style="color:#0084ff; font-size:26px; cursor:pointer;"><i class="fa-solid fa-video"></i></div>
     </div>
 
     <div class="chat-container" id="chatContainer">
         <div class="middle-profile">
-            <div class="img-container middle-pic-container">
-                <img src="images/profile.webp" class="middle-pic">
-                <div class="active-dot"></div>
-            </div>
-            <div class="middle-name">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></div>
-            <div class="location">Miami, Florida</div>
-            <div class="not-friends" id="friendStatus">You are not friends with Jacklyn Rose on Messenger.</div>
-            <button class="add-friend-btn" id="addFriendBtn" onclick="toggleFriend()"><i class="fa-solid fa-user-plus"></i> Add Friend</button>
+            <img src="profile.webp" class="middle-pic">
+            <div style="font-size:22px; font-weight:bold;">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></div>
+            <div style="color:#65676b; font-size:14px;">Messenger</div>
         </div>
         <div id="messagesArea"></div>
         <div class="typing" id="typingIndicator">Jacklyn is typing...</div>
     </div>
 
     <div class="footer">
-        <label for="mediaInput"><i class="fa-solid fa-circle-plus" style="font-size: 30px;"></i></label>
-        <input type="file" id="mediaInput" style="display:none;" accept="image/*,video/*">
-        <div class="input-box">
-            <input type="text" id="msgInput" placeholder="Aa" autocomplete="off">
-            <i class="fa-regular fa-face-smile" style="font-size: 26px;" onclick="document.getElementById('msgInput').focus()"></i>
-        </div>
-        <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size: 30px;"></i>
+        <i class="fa-solid fa-circle-plus" style="font-size:26px; color:#0084ff;"></i>
+        <div class="input-box"><input type="text" id="msgInput" placeholder="Aa"></div>
+        <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size:26px; color:#0084ff; cursor:pointer;"></i>
     </div>
 
     <script>
-        const messagesArea = document.getElementById('messagesArea');
-        const chatContainer = document.getElementById('chatContainer');
         const msgInput = document.getElementById('msgInput');
-        const videoOverlay = document.getElementById('videoOverlay');
-        const typingIndicator = document.getElementById('typingIndicator');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const premiumModal = document.getElementById('premiumModal');
+        const messagesArea = document.getElementById('messagesArea');
         const ringtone = document.getElementById('ringtoneAudio');
-
-        let replyIndex = 0;
-        let sentMessageCount = 0;
-        let inactivityTimer;
-        let replyDelayTimer; 
-        let callTimerInterval;
-        let autoHangupTimer;
-        let callCount = 0;
-        let seconds = 0;
-        let canNag = true;
-
-        const autoReplies = [
-            "Hey handsome.. 😉", 
-            "I have something to show you.. 💋", // টেক্সট + ভিডিওর জন্য
-            "You look like you know how to treat a lady...", 
-            "Want to keep me company? 💋"
-        ];
-        const nagReplies = ["Are you ok?", "Reply me", "Why you stop?", "Chatting with me.."];
-
-        function resetInactivity() {
-            clearTimeout(inactivityTimer);
-            canNag = true;
-            inactivityTimer = setTimeout(() => {
-                if (canNag) {
-                    typingIndicator.style.display = 'block';
-                    scrollToBottom();
-                    setTimeout(() => {
-                        typingIndicator.style.display = 'none';
-                        receiveMessage(nagReplies[replyIndex % nagReplies.length]);
-                        canNag = false; 
-                    }, 3000);
-                }
-            }, 15000);
-        }
+        let callCount = 0, msgCount = 0, replyIndex = 0;
 
         function receiveMessage(text, hasVideo = false) {
-            let videoContent = hasVideo ? `<video src="videos/chat_video.mp4" class="video-msg" autoplay muted loop></video>` : '';
-            const html = `
+            let video = hasVideo ? `<video src="chat_video.mp4" class="video-msg" autoplay muted loop></video>` : '';
+            messagesArea.insertAdjacentHTML('beforeend', `
                 <div class="message-wrapper">
-                    <div class="img-container">
-                        <img src="images/profile.webp" class="msg-profile-pic">
-                        <div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div>
-                    </div>
-                    <div class="message received">
-                        ${text}
-                        ${videoContent}
-                    </div>
-                </div>`;
-            messagesArea.insertAdjacentHTML('beforeend', html);
-            scrollToBottom();
+                    <img src="profile.webp" class="msg-profile-pic">
+                    <div class="message received">${text}${video}</div>
+                </div>`);
+            document.getElementById('chatContainer').scrollTop = document.getElementById('chatContainer').scrollHeight;
+            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerCall, 2500);
+        }
+
+        document.getElementById('sendBtn').onclick = () => {
+            const val = msgInput.value.trim();
+            if (!val) return;
+            if (msgCount >= 3) { document.getElementById('premiumModal').style.display='flex'; return; }
             
-            // ১ম এবং ৩য় রিপ্লাইয়ের পর কল আসবে
-            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2500);
-        }
-
-        function sendMessage() {
-            const text = msgInput.value.trim();
-            if (!text) return;
-            if (sentMessageCount >= 3) { showPremium(); return; }
-
-            sentMessageCount++;
-            messagesArea.insertAdjacentHTML('beforeend', `<div class="message-wrapper" style="justify-content:flex-end;"><div class="message sent">${text}</div></div>`);
+            msgCount++;
+            messagesArea.insertAdjacentHTML('beforeend', `<div class="message-wrapper" style="justify-content:flex-end;"><div class="message sent">${val}</div></div>`);
             msgInput.value = "";
-            scrollToBottom();
-            resetInactivity();
+            document.getElementById('typingIndicator').style.display='block';
+            
+            setTimeout(() => {
+                document.getElementById('typingIndicator').style.display='none';
+                if (replyIndex === 1) receiveMessage("I have something to show you.. 💋", true);
+                else if (replyIndex === 0) receiveMessage("Hey handsome.. 😉");
+                else receiveMessage("You look like you know how to treat a lady...");
+                replyIndex++;
+            }, 3000);
+        };
 
-            clearTimeout(replyDelayTimer); 
-            typingIndicator.style.display = 'none';
-
-            replyDelayTimer = setTimeout(() => {
-                typingIndicator.style.display = 'block';
-                scrollToBottom();
-                setTimeout(() => {
-                    typingIndicator.style.display = 'none';
-                    
-                    if (replyIndex === 1) { 
-                        // ২য় রিপ্লাই: টেক্সট এবং ভিডিও একসাথে
-                        receiveMessage(autoReplies[replyIndex], true); 
-                    } else if (replyIndex < autoReplies.length) {
-                        receiveMessage(autoReplies[replyIndex]);
-                    }
-                    
-                    replyIndex++;
-                    resetInactivity();
-                }, 3000);
-            }, 2000);
-        }
-
-        function triggerIncomingCall() {
-            videoOverlay.style.display = 'block';
-            document.getElementById('callUI').style.display = 'block';
-            document.getElementById('callStatusText').innerText = "Incoming video call...";
-            timerDisplay.style.display = 'none';
-            document.getElementById('answerBtn').style.display = 'flex';
-            ringtone.play(); 
-        }
-
-        function startOutgoingCall() {
-            if(callCount >= 2) { showPremium(); return; }
-            videoOverlay.style.display = 'block';
-            document.getElementById('callUI').style.display = 'block';
-            document.getElementById('callStatusText').innerText = "Calling...";
-            timerDisplay.style.display = 'none';
-            document.getElementById('answerBtn').style.display = 'none';
-            setTimeout(acceptCall, 3000);
-        }
-
-        function checkLimitBeforeAccept() {
-            if(callCount >= 2) { 
-                ringtone.pause();
-                videoOverlay.style.display = 'none'; 
-                showPremium(); 
-            } else { acceptCall(); }
+        function triggerCall() {
+            document.getElementById('videoOverlay').style.display='block';
+            document.getElementById('answerBtn').style.display='flex';
+            ringtone.play();
         }
 
         async function acceptCall() {
             ringtone.pause(); 
             callCount++;
-            const vPlayer = document.getElementById('mainVideo');
-            vPlayer.src = (callCount === 1) ? "videos/call1.mp4" : "videos/call2.mp4.mp4";
+            const vp = document.getElementById('mainVideo');
+            // আপনার স্ক্রিনশট অনুযায়ী call2.mp4 নাম দেওয়া হয়েছে
+            vp.src = (callCount === 1) ? "call1.mp4" : "call2.mp4";
             
-            document.getElementById('callUI').style.display = 'none'; 
-            vPlayer.style.display = 'block';
-            document.getElementById('userPreview').style.display = 'block';
-            timerDisplay.style.display = 'block';
-            document.getElementById('answerBtn').style.display = 'none';
+            document.getElementById('callUI').style.display='none';
+            vp.style.display='block'; 
+            vp.play();
+            
+            document.getElementById('userPreview').style.display='block';
+            try { document.getElementById('userPreview').srcObject = await navigator.mediaDevices.getUserMedia({video:true, audio:true}); } catch(e){}
+            
+            setTimeout(endCall, callCount === 1 ? 14000 : 12000);
+        }
 
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-                document.getElementById('userPreview').srcObject = stream;
-            } catch(e) {}
-
-            vPlayer.play();
-            seconds = 0;
-            timerDisplay.innerText = "00:00";
-            callTimerInterval = setInterval(() => {
-                seconds++;
-                let m = Math.floor(seconds/60).toString().padStart(2, '0');
-                let s = (seconds%60).toString().padStart(2, '0');
-                timerDisplay.innerText = `${m}:${s}`;
-            }, 1000);
-
-            let hangupTime = (callCount === 1) ? 14000 : 12000;
-            autoHangupTimer = setTimeout(endCall, hangupTime);
+        function checkLimitBeforeAccept() { 
+            if(callCount >= 2) { 
+                ringtone.pause(); 
+                document.getElementById('videoOverlay').style.display='none';
+                document.getElementById('premiumModal').style.display='flex'; 
+            } else acceptCall(); 
         }
 
         function endCall() {
             ringtone.pause();
-            clearInterval(callTimerInterval);
-            clearTimeout(autoHangupTimer);
-            const finalTime = timerDisplay.innerText;
-            videoOverlay.style.display = 'none';
-            document.getElementById('mainVideo').pause();
-            if(document.getElementById('userPreview').srcObject) {
-                document.getElementById('userPreview').srcObject.getTracks().forEach(t => t.stop());
-            }
-
-            const log = `
-                <div class="call-log-box">
-                    <div class="call-log-info">
-                        <div class="call-log-icon"><i class="fa-solid fa-video"></i></div>
-                        <div>
-                            <div style="font-weight:bold;">Video call</div>
-                            <div style="font-size:13px; color:#bbb;">${seconds > 0 ? finalTime : 'Declined'}</div>
-                        </div>
-                    </div>
-                    <div class="call-again-btn" onclick="startOutgoingCall()">Call again</div>
-                </div>`;
-            messagesArea.insertAdjacentHTML('beforeend', log);
-            scrollToBottom();
-            resetInactivity();
+            const vp = document.getElementById('mainVideo');
+            vp.pause();
+            document.getElementById('videoOverlay').style.display='none';
+            // কল শেষ হওয়ার পর কল লগ দেখানোর জন্য চ্যাট রিফ্রেশ না করে মেসেজ অ্যাড করা যায়
+            messagesArea.insertAdjacentHTML('beforeend', `<div style="text-align:center; color:#65676b; font-size:12px; margin:10px 0;">Video call ended</div>`);
         }
 
-        function toggleFriend() {
-            const btn = document.getElementById('addFriendBtn');
-            btn.innerHTML = '<i class="fa-solid fa-user-check"></i> Friends';
-            btn.classList.add('is-friend');
-            document.getElementById('friendStatus').innerText = "You are friends with Jacklyn Rose.";
+        function startOutgoingCall() { 
+            if(callCount >= 2) document.getElementById('premiumModal').style.display='flex'; 
+            else { 
+                document.getElementById('videoOverlay').style.display='block'; 
+                document.getElementById('answerBtn').style.display='none';
+                document.getElementById('callStatusText').innerText = "Calling...";
+                setTimeout(acceptCall, 3000); 
+            } 
         }
-
-        function showPremium() { premiumModal.style.display = 'flex'; }
-        function closePremium() { premiumModal.style.display = 'none'; }
-        function scrollToBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
-
-        document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        msgInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
-        resetInactivity();
     </script>
 </body>
 </html>
