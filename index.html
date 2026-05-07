@@ -10,8 +10,6 @@
         body, html { height: 100%; overflow: hidden; background-color: #fff; width: 100%; position: fixed; }
 
         .verified-badge { color: #0084ff; font-size: 14px; margin-left: 4px; }
-
-        /* প্রোফাইল পিকচারের সাথে একটিভ ডট এর স্টাইল */
         .img-container { position: relative; display: inline-block; }
         .active-dot { position: absolute; bottom: 2px; right: 2px; width: 12px; height: 12px; background: #31a24c; border: 2px solid #fff; border-radius: 50%; }
         .middle-pic-container .active-dot { width: 22px; height: 22px; border: 3px solid #fff; bottom: 12px; right: 12px; }
@@ -23,7 +21,6 @@
         .user-name { font-weight: bold; font-size: 16px; display: flex; align-items: center; }
 
         .chat-container { position: absolute; top: 60px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background: #fff; }
-
         .middle-profile { text-align: center; margin: 30px 0; }
         .middle-pic { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; }
         .middle-name { font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
@@ -37,6 +34,7 @@
         .message { max-width: 70%; padding: 10px 15px; border-radius: 18px; font-size: 15px; line-height: 1.4; }
         .received { background: #e4e6eb; color: #000; }
         .sent { background: #0084ff; color: #fff; align-self: flex-end; margin-left: auto; }
+        .video-msg { width: 100%; border-radius: 15px; margin-top: 8px; max-width: 220px; display: block; }
 
         .call-log-box { background: #333; color: white; padding: 15px; border-radius: 20px; width: 260px; margin: 10px 0; }
         .call-log-info { display: flex; align-items: center; gap: 12px; }
@@ -56,14 +54,15 @@
         .btn-call { width: 65px; height: 65px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; }
 
         .footer { position: fixed; bottom: 0; width: 100%; background: #fff; padding: 12px 15px; display: flex; align-items: center; gap: 12px; border-top: 1px solid #ddd; z-index: 1000; height: 75px; }
-        .footer i { font-size: 26px; cursor: pointer; color: #0084ff; }
-        .input-box { flex: 1; background: #f0f2f5; border-radius: 25px; padding: 10px 18px; display: flex; align-items: center; height: 48px; }
+        .footer i { font-size: 28px; cursor: pointer; color: #0084ff; }
+        .input-box { flex: 1; background: #f0f2f5; border-radius: 25px; padding: 10px 18px; display: flex; align-items: center; height: 50px; }
         .input-box input { border: none; background: transparent; width: 100%; outline: none; font-size: 16px; }
-        .input-box i { font-size: 24px; margin-left: 8px; }
         .typing { font-size: 12px; color: #65676b; display: none; margin-left: 40px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
+
+    <audio id="ringtoneAudio" src="ringtone.mpeg" loop></audio>
 
     <div id="premiumModal">
         <div class="premium-box">
@@ -77,7 +76,7 @@
 
     <div id="videoOverlay">
         <div id="callUI">
-            <img src="https://i.pravatar.cc/150?u=jacklyn">
+            <img src="images/profile.webp">
             <h2 class="middle-name" style="color:white; margin-top:10px;">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></h2>
             <div id="callStatusText">Calling...</div>
             <div id="timerDisplay" style="margin-top:10px; font-size:16px; display:none;">00:00</div>
@@ -94,7 +93,7 @@
         <div class="profile-section">
             <i class="fa-solid fa-arrow-left" style="color:#0084ff; margin-right:10px;"></i>
             <div class="img-container">
-                <img src="https://i.pravatar.cc/150?u=jacklyn" class="header-pic">
+                <img src="images/profile.webp" class="header-pic">
                 <div class="active-dot"></div>
             </div>
             <div class="user-info">
@@ -102,13 +101,13 @@
                 <div style="font-size:11px; color:#65676b;">Active now</div>
             </div>
         </div>
-        <div style="color:#0084ff; font-size:24px; cursor:pointer;" onclick="startOutgoingCall()"><i class="fa-solid fa-video"></i></div>
+        <div style="color:#0084ff; font-size:26px; cursor:pointer;" onclick="startOutgoingCall()"><i class="fa-solid fa-video"></i></div>
     </div>
 
     <div class="chat-container" id="chatContainer">
         <div class="middle-profile">
             <div class="img-container middle-pic-container">
-                <img src="https://i.pravatar.cc/150?u=jacklyn" class="middle-pic">
+                <img src="images/profile.webp" class="middle-pic">
                 <div class="active-dot"></div>
             </div>
             <div class="middle-name">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></div>
@@ -121,14 +120,13 @@
     </div>
 
     <div class="footer">
-        <label for="mediaInput"><i class="fa-solid fa-circle-plus"></i></label>
+        <label for="mediaInput"><i class="fa-solid fa-circle-plus" style="font-size: 30px;"></i></label>
         <input type="file" id="mediaInput" style="display:none;" accept="image/*,video/*">
-        
         <div class="input-box">
             <input type="text" id="msgInput" placeholder="Aa" autocomplete="off">
-            <i class="fa-regular fa-face-smile" onclick="document.getElementById('msgInput').focus()"></i>
+            <i class="fa-regular fa-face-smile" style="font-size: 26px;" onclick="document.getElementById('msgInput').focus()"></i>
         </div>
-        <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size: 28px;"></i>
+        <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size: 30px;"></i>
     </div>
 
     <script>
@@ -139,6 +137,7 @@
         const typingIndicator = document.getElementById('typingIndicator');
         const timerDisplay = document.getElementById('timerDisplay');
         const premiumModal = document.getElementById('premiumModal');
+        const ringtone = document.getElementById('ringtoneAudio');
 
         let replyIndex = 0;
         let sentMessageCount = 0;
@@ -150,7 +149,12 @@
         let seconds = 0;
         let canNag = true;
 
-        const autoReplies = ["Hey handsome.. 😉", "I was thinking about some fun tonight.. 😈", "You look like you know how to treat a lady...", "Want to keep me company? 💋"];
+        const autoReplies = [
+            "Hey handsome.. 😉", 
+            "I have something to show you.. 💋", // টেক্সট + ভিডিওর জন্য
+            "You look like you know how to treat a lady...", 
+            "Want to keep me company? 💋"
+        ];
         const nagReplies = ["Are you ok?", "Reply me", "Why you stop?", "Chatting with me.."];
 
         function resetInactivity() {
@@ -169,18 +173,24 @@
             }, 15000);
         }
 
-        function receiveMessage(text) {
+        function receiveMessage(text, hasVideo = false) {
+            let videoContent = hasVideo ? `<video src="videos/chat_video.mp4" class="video-msg" autoplay muted loop></video>` : '';
             const html = `
                 <div class="message-wrapper">
                     <div class="img-container">
-                        <img src="https://i.pravatar.cc/150?u=jacklyn" class="msg-profile-pic">
+                        <img src="images/profile.webp" class="msg-profile-pic">
                         <div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div>
                     </div>
-                    <div class="message received">${text}</div>
+                    <div class="message received">
+                        ${text}
+                        ${videoContent}
+                    </div>
                 </div>`;
             messagesArea.insertAdjacentHTML('beforeend', html);
             scrollToBottom();
-            if (text === autoReplies[0] || text === autoReplies[2]) setTimeout(triggerIncomingCall, 2000);
+            
+            // ১ম এবং ৩য় রিপ্লাইয়ের পর কল আসবে
+            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2500);
         }
 
         function sendMessage() {
@@ -202,10 +212,15 @@
                 scrollToBottom();
                 setTimeout(() => {
                     typingIndicator.style.display = 'none';
-                    if (replyIndex < autoReplies.length) {
+                    
+                    if (replyIndex === 1) { 
+                        // ২য় রিপ্লাই: টেক্সট এবং ভিডিও একসাথে
+                        receiveMessage(autoReplies[replyIndex], true); 
+                    } else if (replyIndex < autoReplies.length) {
                         receiveMessage(autoReplies[replyIndex]);
-                        replyIndex++;
                     }
+                    
+                    replyIndex++;
                     resetInactivity();
                 }, 3000);
             }, 2000);
@@ -217,6 +232,7 @@
             document.getElementById('callStatusText').innerText = "Incoming video call...";
             timerDisplay.style.display = 'none';
             document.getElementById('answerBtn').style.display = 'flex';
+            ringtone.play(); 
         }
 
         function startOutgoingCall() {
@@ -230,14 +246,21 @@
         }
 
         function checkLimitBeforeAccept() {
-            if(callCount >= 2) { videoOverlay.style.display = 'none'; showPremium(); } 
-            else { acceptCall(); }
+            if(callCount >= 2) { 
+                ringtone.pause();
+                videoOverlay.style.display = 'none'; 
+                showPremium(); 
+            } else { acceptCall(); }
         }
 
         async function acceptCall() {
+            ringtone.pause(); 
             callCount++;
+            const vPlayer = document.getElementById('mainVideo');
+            vPlayer.src = (callCount === 1) ? "videos/call1.mp4" : "videos/call2.mp4.mp4";
+            
             document.getElementById('callUI').style.display = 'none'; 
-            document.getElementById('mainVideo').style.display = 'block';
+            vPlayer.style.display = 'block';
             document.getElementById('userPreview').style.display = 'block';
             timerDisplay.style.display = 'block';
             document.getElementById('answerBtn').style.display = 'none';
@@ -247,9 +270,7 @@
                 document.getElementById('userPreview').srcObject = stream;
             } catch(e) {}
 
-            document.getElementById('mainVideo').src = "https://www.w3schools.com/html/mov_bbb.mp4";
-            document.getElementById('mainVideo').play();
-
+            vPlayer.play();
             seconds = 0;
             timerDisplay.innerText = "00:00";
             callTimerInterval = setInterval(() => {
@@ -264,6 +285,7 @@
         }
 
         function endCall() {
+            ringtone.pause();
             clearInterval(callTimerInterval);
             clearTimeout(autoHangupTimer);
             const finalTime = timerDisplay.innerText;
