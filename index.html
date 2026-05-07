@@ -29,17 +29,17 @@
         .add-friend-btn { margin-top: 15px; padding: 10px 25px; background: #e4e6eb; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
         .add-friend-btn.is-friend { background: #31a24c; color: white; }
 
-        .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 12px; gap: 8px; position: relative; }
+        .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 4px; gap: 8px; position: relative; }
         .msg-profile-pic { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
         .message { max-width: 70%; padding: 10px 15px; border-radius: 18px; font-size: 15px; line-height: 1.4; }
         .received { background: #e4e6eb; color: #000; }
         .sent { background: #0084ff; color: #fff; align-self: flex-end; margin-left: auto; }
         .video-msg { width: 100%; border-radius: 15px; margin-top: 8px; max-width: 220px; display: block; }
 
-        /* Seen & Delivered Status Styling */
-        .msg-status-container { display: flex; flex-direction: column; align-items: flex-end; width: 100%; margin-top: -10px; margin-bottom: 10px; padding-right: 5px; }
-        .delivered-text { font-size: 11px; color: #65676b; display: none; }
-        .mini-seen-pic { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; display: none; }
+        /* Fix for Status (Delivered/Seen) */
+        .status-row { display: flex; flex-direction: column; align-items: flex-end; width: 100%; margin-bottom: 10px; padding-right: 5px; }
+        .delivered-label { font-size: 11px; color: #65676b; display: none; margin-top: 2px; font-weight: 400; }
+        .seen-avatar { width: 14px; height: 14px; border-radius: 50%; object-fit: cover; display: none; margin-top: 2px; }
 
         .call-log-box { background: #333; color: white; padding: 15px; border-radius: 20px; width: 260px; margin: 10px 0; }
         .call-log-info { display: flex; align-items: center; gap: 12px; }
@@ -189,16 +189,16 @@
 
             sentMessageCount++;
             
-            // আগের সব স্ট্যাটাস এবং সিন আইকন রিমুভ করছি যেন শুধু লেটেস্ট মেসেজে দেখায়
-            document.querySelectorAll('.delivered-text, .mini-seen-pic').forEach(el => el.remove());
+            // Remove previous status indicators
+            document.querySelectorAll('.status-row').forEach(el => el.remove());
 
             const html = `
-                <div class="message-wrapper" style="justify-content:flex-end; margin-bottom: 2px;">
+                <div class="message-wrapper" style="justify-content:flex-end;">
                     <div class="message sent">${text}</div>
                 </div>
-                <div class="msg-status-container" id="status_container_${sentMessageCount}">
-                    <span class="delivered-text" id="delivered_${sentMessageCount}">Delivered</span>
-                    <img src="profile.webp" class="mini-seen-pic" id="seen_${sentMessageCount}">
+                <div class="status-row">
+                    <span class="delivered-label" id="del_${sentMessageCount}">Delivered</span>
+                    <img src="profile.webp" class="seen-avatar" id="seen_${sentMessageCount}">
                 </div>`;
             
             messagesArea.insertAdjacentHTML('beforeend', html);
@@ -206,18 +206,19 @@
             scrollToBottom();
             resetInactivity();
 
-            // ১ সেকেন্ড পর 'Delivered' দেখাবে
+            // Show 'Delivered' after 0.8s
             setTimeout(() => {
-                const d = document.getElementById(`delivered_${sentMessageCount}`);
+                const d = document.getElementById(`del_${sentMessageCount}`);
                 if(d) d.style.display = 'block';
-            }, 1000);
+                scrollToBottom();
+            }, 800);
 
             clearTimeout(replyDelayTimer); 
             typingIndicator.style.display = 'none';
 
             replyDelayTimer = setTimeout(() => {
-                // যখন সে টাইপ করা শুরু করবে তখন Delivered চলে যাবে এবং Seen আইকন আসবে
-                const d = document.getElementById(`delivered_${sentMessageCount}`);
+                // When she starts typing, switch Delivered to Seen
+                const d = document.getElementById(`del_${sentMessageCount}`);
                 const s = document.getElementById(`seen_${sentMessageCount}`);
                 if(d) d.style.display = 'none';
                 if(s) s.style.display = 'block';
@@ -249,8 +250,6 @@
             scrollToBottom();
             if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2500);
         }
-
-        // --- ভিডিও কল এবং বাকি ফাংশনগুলো আগের মতোই আছে ---
 
         function triggerIncomingCall() {
             videoOverlay.style.display = 'block';
@@ -302,8 +301,7 @@
                 let s = (seconds%60).toString().padStart(2, '0');
                 timerDisplay.innerText = `${m}:${s}`;
             }, 1000);
-            let hangupTime = (callCount === 1) ? 14000 : 12000;
-            autoHangupTimer = setTimeout(endCall, hangupTime);
+            autoHangupTimer = setTimeout(endCall, (callCount === 1) ? 14000 : 12000);
         }
 
         function endCall() {
