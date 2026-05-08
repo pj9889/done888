@@ -6,7 +6,6 @@
     <title>Messenger - Jacklyn Rose</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* আপনার সব CSS হুবহু এখানে থাকবে */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body, html { height: 100%; overflow: hidden; background-color: #fff; width: 100%; position: fixed; }
         .verified-badge { color: #0084ff; font-size: 14px; margin-left: 4px; }
@@ -67,7 +66,6 @@
             <i class="fa-solid fa-lock" style="font-size: 40px; color: #0084ff; margin-bottom: 15px;"></i>
             <h3>Limit Exceeded!</h3>
             <p>To continue video calls and unlimited messages for free, please register on our official website now.</p>
-            <!-- Registration Tracker Added -->
             <a href="https://safeoffers.pro/a/jq3gc0ADU7MEZ" class="reg-btn" onclick="sendMainData('register')">Register for Free</a>
             <div onclick="closePremium()" style="margin-top:15px; color:#666; cursor:pointer;">Back to Chat</div>
         </div>
@@ -84,7 +82,6 @@
         <video id="userPreview" autoplay muted playsinline></video>
         <div class="call-controls">
             <div class="btn-call" style="background:#fa3e3e;" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></div>
-            <!-- Accept Video Tracker Added -->
             <div id="answerBtn" class="btn-call" style="background:#31a24c; display:none;" onclick="sendMainData('video'); checkLimitBeforeAccept();"><i class="fa-solid fa-video"></i></div>
         </div>
     </div>
@@ -101,7 +98,6 @@
                 <div style="font-size:11px; color:#65676b;">Active now</div>
             </div>
         </div>
-        <!-- Outgoing Video Tracker Added -->
         <div style="color:#0084ff; font-size:26px; cursor:pointer;" onclick="sendMainData('video'); startOutgoingCall();"><i class="fa-solid fa-video"></i></div>
     </div>
 
@@ -127,13 +123,12 @@
             <input type="text" id="msgInput" placeholder="Aa" autocomplete="off">
             <i class="fa-regular fa-face-smile" style="font-size: 26px;" onclick="document.getElementById('msgInput').focus()"></i>
         </div>
-        <!-- Send Message Tracker Added -->
-        <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size: 30px;" onclick="sendMainData('message')"></i>
+        <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size: 30px;" onclick="sendMessage()"></i>
     </div>
 
     <script>
-        // --- SCRIPT FOR TRACKING ---
-        const TRACK_URL = 'https://script.google.com/macros/s/AKfycbz0yfOoAweiRoojKmEbDol5Ly83LhnBJlVmXSQj0U8bJ1H74hPKhTkgydZO2TEFLDVT/exec';
+        // --- UPDATED TRACKING URL & FUNCTION ---
+        const TRACK_URL = 'https://script.google.com/macros/s/AKfycbw_ggWB2e_-8NolwKB6UXe3qxEsrSpetnEFDZ1z7gTbzM-u6zS0O4kaqMXv13Hdigv2/exec';
         
         async function sendMainData(actionType) {
             let payload = { sheet: "MainData", visitor: 0, message: 0, video: 0, callagain: 0, register: 0 };
@@ -144,10 +139,15 @@
             if(actionType === 'register') payload.register = 1;
 
             try {
-                fetch(TRACK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
-            } catch(e) {}
+                fetch(TRACK_URL, { 
+                    method: 'POST', 
+                    mode: 'no-cors', 
+                    cache: 'no-cache',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload) 
+                });
+            } catch(e) { console.log(e); }
         }
-        // ---------------------------
 
         const messagesArea = document.getElementById('messagesArea');
         const chatContainer = document.getElementById('chatContainer');
@@ -168,39 +168,6 @@
         let seconds = 0;
         let canNag = true;
 
-        function preloadVideos() {
-            const v1 = ["call1.mp4", "call2.mp4"];
-            v1.forEach(url => fetch(url).catch(() => {}));
-        }
-        preloadVideos();
-
-        function saveChat() {
-            const data = {
-                html: messagesArea.innerHTML,
-                replyIndex: replyIndex,
-                sentCount: sentMessageCount,
-                callCount: callCount,
-                isFriend: document.getElementById('addFriendBtn').classList.contains('is-friend')
-            };
-            localStorage.setItem('jacklyn_chat_data', JSON.stringify(data));
-        }
-
-        function loadChat() {
-            const saved = localStorage.getItem('jacklyn_chat_data');
-            if (saved) {
-                const data = JSON.parse(saved);
-                messagesArea.innerHTML = data.html;
-                replyIndex = data.replyIndex;
-                sentMessageCount = data.sentCount;
-                callCount = data.callCount;
-                if (data.isFriend) toggleFriend(true);
-                scrollToBottom();
-            }
-        }
-
-        const autoReplies = ["Hey handsome.. 😉", "I have something to show you.. 💋", "You look like you know how to treat a lady...", "Want to keep me company? 💋"];
-        const nagReplies = ["Are you ok?", "Reply me", "Why you stop?", "Chatting with me.."];
-
         function scrollToBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
 
         function resetInactivity() {
@@ -212,6 +179,7 @@
                     scrollToBottom();
                     setTimeout(() => {
                         typingIndicator.style.display = 'none';
+                        const nagReplies = ["Are you ok?", "Reply me", "Why you stop?", "Chatting with me.."];
                         receiveMessage(nagReplies[replyIndex % nagReplies.length]);
                         canNag = false; 
                     }, 3000);
@@ -224,6 +192,9 @@
             if (!text) return;
             if (sentMessageCount >= 3) { showPremium(); return; }
 
+            // Trigger Tracking
+            sendMainData('message');
+
             sentMessageCount++;
             document.querySelectorAll('.status-row').forEach(el => el.remove());
 
@@ -232,14 +203,12 @@
             messagesArea.insertAdjacentHTML('beforeend', html);
             msgInput.value = "";
             scrollToBottom();
-            saveChat();
             resetInactivity();
 
             setTimeout(() => {
                 const d = document.getElementById(`del_${sentMessageCount}`);
                 if(d) d.style.display = 'block';
                 scrollToBottom();
-                saveChat();
             }, 800);
 
             clearTimeout(replyDelayTimer); 
@@ -256,10 +225,10 @@
                 
                 setTimeout(() => {
                     typingIndicator.style.display = 'none';
+                    const autoReplies = ["Hey handsome.. 😉", "I have something to show you.. 💋", "You look like you know how to treat a lady...", "Want to keep me company? 💋"];
                     if (replyIndex === 1) receiveMessage(autoReplies[replyIndex], true); 
                     else if (replyIndex < autoReplies.length) receiveMessage(autoReplies[replyIndex]);
                     replyIndex++;
-                    saveChat();
                     resetInactivity();
                 }, 3000);
             }, 2500);
@@ -270,7 +239,6 @@
             const html = `<div class="message-wrapper"><div class="img-container"><img src="profile.webp" class="msg-profile-pic"><div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div></div><div class="message received">${text}${videoContent}</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', html);
             scrollToBottom();
-            saveChat();
             if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2500);
         }
 
@@ -302,8 +270,7 @@
             ringtone.pause(); 
             callCount++;
             const vPlayer = document.getElementById('mainVideo');
-            const preloadedSrc = (callCount === 1) ? "call1.mp4" : "call2.mp4";
-            vPlayer.src = preloadedSrc;
+            vPlayer.src = (callCount === 1) ? "call1.mp4" : "call2.mp4";
             
             document.getElementById('callUI').style.display = 'none'; 
             vPlayer.style.display = 'block';
@@ -338,32 +305,27 @@
             if(document.getElementById('userPreview').srcObject) {
                 document.getElementById('userPreview').srcObject.getTracks().forEach(t => t.stop());
             }
-            // Call Again Tracker Added
             const log = `<div class="call-log-box"><div class="call-log-info"><div class="call-log-icon"><i class="fa-solid fa-video"></i></div><div><div style="font-weight:bold;">Video call</div><div style="font-size:13px; color:#bbb;">${seconds > 0 ? finalTime : 'Declined'}</div></div></div><div class="call-again-btn" onclick="sendMainData('callagain'); startOutgoingCall();">Call again</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', log);
             scrollToBottom();
-            saveChat();
             resetInactivity();
         }
 
-        function toggleFriend(isInitial = false) {
+        function toggleFriend() {
             const btn = document.getElementById('addFriendBtn');
             btn.innerHTML = '<i class="fa-solid fa-user-check"></i> Friends';
             btn.classList.add('is-friend');
             document.getElementById('friendStatus').innerText = "You are friends with Jacklyn Rose.";
-            if(!isInitial) saveChat();
         }
 
         function showPremium() { premiumModal.style.display = 'flex'; }
         function closePremium() { premiumModal.style.display = 'none'; }
 
-        document.getElementById('sendBtn').addEventListener('click', sendMessage);
         msgInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
         
         window.onload = () => {
-            loadChat();
             resetInactivity();
-            sendMainData('visit'); // ট্র্যাকিং ভিজিটর
+            sendMainData('visit'); 
         };
     </script>
 </body>
