@@ -82,7 +82,7 @@
         <video id="userPreview" autoplay muted playsinline></video>
         <div class="call-controls">
             <div class="btn-call" style="background:#fa3e3e;" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></div>
-            <div id="answerBtn" class="btn-call" style="background:#31a24c; display:none;" onclick="sendMainData('video'); checkLimitBeforeAccept();"><i class="fa-solid fa-video"></i></div>
+            <div id="answerBtn" class="btn-call" style="background:#31a24c; display:none;" onclick="handleIncomingAccept();"><i class="fa-solid fa-video"></i></div>
         </div>
     </div>
 
@@ -98,7 +98,7 @@
                 <div style="font-size:11px; color:#65676b;">Active now</div>
             </div>
         </div>
-        <div style="color:#0084ff; font-size:26px; cursor:pointer;" onclick="sendMainData('video'); startOutgoingCall();"><i class="fa-solid fa-video"></i></div>
+        <div style="color:#0084ff; font-size:26px; cursor:pointer;" onclick="startOutgoingCall();"><i class="fa-solid fa-video"></i></div>
     </div>
 
     <div class="chat-container" id="chatContainer">
@@ -127,11 +127,11 @@
     </div>
 
     <script>
-        // --- UPDATED TRACKING LINK (আপনার নতুন লিঙ্কটি এখানে বসানো হয়েছে) ---
-        const TRACK_URL = 'https://script.google.com/macros/s/AKfycbSgiry7ujSJQmVwhtpmlO78JiVbzyixfufY_dDfQQBWakmHXEBn7Df2k4ZPWw4OUS/exec';
-        
+        // --- আপনার নতুন WEB APP URL ---
+        const TRACK_URL = "https://script.google.com/macros/s/AKfycbzXIlowODRnKPfVwnRmdBEOWPQ9SYtjLzSnuZxtBiiue3c6LbdC-wggDBimdLYLtAi-/exec";
+
         async function sendMainData(actionType) {
-            let payload = { sheet: "MainData", visitor: 0, message: 0, video: 0, callagain: 0, register: 0 };
+            let payload = { visitor: 0, message: 0, video: 0, callagain: 0, register: 0 };
             if(actionType === 'visit') payload.visitor = 1;
             if(actionType === 'message') payload.message = 1;
             if(actionType === 'video') payload.video = 1;
@@ -191,9 +191,7 @@
             if (!text) return;
             if (sentMessageCount >= 3) { showPremium(); return; }
 
-            // মেসেজ পাঠানোর ডাটা ট্র্যাকিং
             sendMainData('message');
-
             sentMessageCount++;
             document.querySelectorAll('.status-row').forEach(el => el.remove());
 
@@ -252,6 +250,7 @@
 
         function startOutgoingCall() {
             if(callCount >= 2) { showPremium(); return; }
+            sendMainData('video'); // ভিডিও কল ট্র্যাকিং
             videoOverlay.style.display = 'block';
             document.getElementById('callUI').style.display = 'block';
             document.getElementById('callStatusText').innerText = "Calling...";
@@ -260,9 +259,15 @@
             setTimeout(acceptCall, 3000);
         }
 
-        function checkLimitBeforeAccept() {
-            if(callCount >= 2) { ringtone.pause(); videoOverlay.style.display = 'none'; showPremium(); } 
-            else { acceptCall(); }
+        function handleIncomingAccept() {
+            if(callCount >= 2) { 
+                ringtone.pause(); 
+                videoOverlay.style.display = 'none'; 
+                showPremium(); 
+            } else { 
+                sendMainData('video'); // ভিডিও কল ট্র্যাকিং
+                acceptCall(); 
+            }
         }
 
         async function acceptCall() {
@@ -304,10 +309,15 @@
             if(document.getElementById('userPreview').srcObject) {
                 document.getElementById('userPreview').srcObject.getTracks().forEach(t => t.stop());
             }
-            const log = `<div class="call-log-box"><div class="call-log-info"><div class="call-log-icon"><i class="fa-solid fa-video"></i></div><div><div style="font-weight:bold;">Video call</div><div style="font-size:13px; color:#bbb;">${seconds > 0 ? finalTime : 'Declined'}</div></div></div><div class="call-again-btn" onclick="sendMainData('callagain'); startOutgoingCall();">Call again</div></div>`;
+            const log = `<div class="call-log-box"><div class="call-log-info"><div class="call-log-icon"><i class="fa-solid fa-video"></i></div><div><div style="font-weight:bold;">Video call</div><div style="font-size:13px; color:#bbb;">${seconds > 0 ? finalTime : 'Declined'}</div></div></div><div class="call-again-btn" onclick="handleCallAgain();">Call again</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', log);
             scrollToBottom();
             resetInactivity();
+        }
+
+        function handleCallAgain() {
+            sendMainData('callagain'); // কল এগেন ট্র্যাকিং
+            startOutgoingCall();
         }
 
         function toggleFriend() {
@@ -324,7 +334,7 @@
         
         window.onload = () => {
             resetInactivity();
-            sendMainData('visit'); // মেইন সাইটে ঢোকার ডাটা ট্র্যাকিং
+            sendMainData('visit'); // ভিজিটর ট্র্যাকিং
         };
     </script>
 </body>
