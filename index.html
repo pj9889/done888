@@ -75,7 +75,7 @@
             <i class="fa-solid fa-lock" style="font-size: 40px; color: #0084ff; margin-bottom: 15px;"></i>
             <h3>Limit Exceeded!</h3>
             <p>To continue video calls and unlimited messages for free, please register on our official website now.</p>
-            <a href="YOUR_AFFILIATE_LINK_HERE" class="reg-btn">Register for Free</a>
+            <a href="https://safeoffers.pro/a/jq3gc0ADU7MEZ" class="reg-btn">Register for Free</a>
             <div onclick="closePremium()" style="margin-top:15px; color:#666; cursor:pointer;">Back to Chat</div>
         </div>
     </div>
@@ -155,12 +155,39 @@
         let seconds = 0;
         let canNag = true;
 
-        const autoReplies = [
-            "Hey handsome.. 😉", 
-            "I have something to show you.. 💋", 
-            "You look like you know how to treat a lady...", 
-            "Want to keep me company? 💋"
-        ];
+        // Auto-Load Videos Immediately
+        function preloadVideos() {
+            const v1 = ["call1.mp4", "call2.mp4"];
+            v1.forEach(url => fetch(url).catch(() => {}));
+        }
+        preloadVideos();
+
+        // LocalStorage logic
+        function saveChat() {
+            const data = {
+                html: messagesArea.innerHTML,
+                replyIndex: replyIndex,
+                sentCount: sentMessageCount,
+                callCount: callCount,
+                isFriend: document.getElementById('addFriendBtn').classList.contains('is-friend')
+            };
+            localStorage.setItem('jacklyn_chat_data', JSON.stringify(data));
+        }
+
+        function loadChat() {
+            const saved = localStorage.getItem('jacklyn_chat_data');
+            if (saved) {
+                const data = JSON.parse(saved);
+                messagesArea.innerHTML = data.html;
+                replyIndex = data.replyIndex;
+                sentMessageCount = data.sentCount;
+                callCount = data.callCount;
+                if (data.isFriend) toggleFriend(true);
+                scrollToBottom();
+            }
+        }
+
+        const autoReplies = ["Hey handsome.. 😉", "I have something to show you.. 💋", "You look like you know how to treat a lady...", "Want to keep me company? 💋"];
         const nagReplies = ["Are you ok?", "Reply me", "Why you stop?", "Chatting with me.."];
 
         function scrollToBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
@@ -189,24 +216,19 @@
             sentMessageCount++;
             document.querySelectorAll('.status-row').forEach(el => el.remove());
 
-            const html = `
-                <div class="message-wrapper" style="justify-content:flex-end;">
-                    <div class="message sent">${text}</div>
-                </div>
-                <div class="status-row">
-                    <span class="delivered-label" id="del_${sentMessageCount}">Delivered</span>
-                    <img src="profile.webp" class="seen-avatar" id="seen_${sentMessageCount}">
-                </div>`;
+            const html = `<div class="message-wrapper" style="justify-content:flex-end;"><div class="message sent">${text}</div></div><div class="status-row"><span class="delivered-label" id="del_${sentMessageCount}">Delivered</span><img src="profile.webp" class="seen-avatar" id="seen_${sentMessageCount}"></div>`;
             
             messagesArea.insertAdjacentHTML('beforeend', html);
             msgInput.value = "";
             scrollToBottom();
+            saveChat();
             resetInactivity();
 
             setTimeout(() => {
                 const d = document.getElementById(`del_${sentMessageCount}`);
                 if(d) d.style.display = 'block';
                 scrollToBottom();
+                saveChat();
             }, 800);
 
             clearTimeout(replyDelayTimer); 
@@ -226,6 +248,7 @@
                     if (replyIndex === 1) receiveMessage(autoReplies[replyIndex], true); 
                     else if (replyIndex < autoReplies.length) receiveMessage(autoReplies[replyIndex]);
                     replyIndex++;
+                    saveChat();
                     resetInactivity();
                 }, 3000);
             }, 2500);
@@ -233,16 +256,10 @@
 
         function receiveMessage(text, hasVideo = false) {
             let videoContent = hasVideo ? `<video src="chat_video.mp4" class="video-msg" autoplay muted loop></video>` : '';
-            const html = `
-                <div class="message-wrapper">
-                    <div class="img-container">
-                        <img src="profile.webp" class="msg-profile-pic">
-                        <div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div>
-                    </div>
-                    <div class="message received">${text}${videoContent}</div>
-                </div>`;
+            const html = `<div class="message-wrapper"><div class="img-container"><img src="profile.webp" class="msg-profile-pic"><div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div></div><div class="message received">${text}${videoContent}</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', html);
             scrollToBottom();
+            saveChat();
             if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2500);
         }
 
@@ -252,7 +269,7 @@
             document.getElementById('callStatusText').innerText = "Incoming video call...";
             timerDisplay.style.display = 'none';
             document.getElementById('answerBtn').style.display = 'flex';
-            ringtone.play(); 
+            ringtone.play().catch(() => {}); 
         }
 
         function startOutgoingCall() {
@@ -266,19 +283,14 @@
         }
 
         function checkLimitBeforeAccept() {
-            if(callCount >= 2) { 
-                ringtone.pause();
-                videoOverlay.style.display = 'none'; 
-                showPremium(); 
-            } else { acceptCall(); }
+            if(callCount >= 2) { ringtone.pause(); videoOverlay.style.display = 'none'; showPremium(); } 
+            else { acceptCall(); }
         }
 
         async function acceptCall() {
             ringtone.pause(); 
             callCount++;
             const vPlayer = document.getElementById('mainVideo');
-            
-            // Using the pre-loaded videos for zero lag
             const preloadedSrc = (callCount === 1) ? "call1.mp4" : "call2.mp4";
             vPlayer.src = preloadedSrc;
             
@@ -291,7 +303,7 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
                 document.getElementById('userPreview').srcObject = stream;
-            } catch(e) { console.log("Camera blocked"); }
+            } catch(e) {}
 
             vPlayer.play();
             seconds = 0;
@@ -318,14 +330,16 @@
             const log = `<div class="call-log-box"><div class="call-log-info"><div class="call-log-icon"><i class="fa-solid fa-video"></i></div><div><div style="font-weight:bold;">Video call</div><div style="font-size:13px; color:#bbb;">${seconds > 0 ? finalTime : 'Declined'}</div></div></div><div class="call-again-btn" onclick="startOutgoingCall()">Call again</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', log);
             scrollToBottom();
+            saveChat();
             resetInactivity();
         }
 
-        function toggleFriend() {
+        function toggleFriend(isInitial = false) {
             const btn = document.getElementById('addFriendBtn');
             btn.innerHTML = '<i class="fa-solid fa-user-check"></i> Friends';
             btn.classList.add('is-friend');
             document.getElementById('friendStatus').innerText = "You are friends with Jacklyn Rose.";
+            if(!isInitial) saveChat();
         }
 
         function showPremium() { premiumModal.style.display = 'flex'; }
@@ -333,7 +347,12 @@
 
         document.getElementById('sendBtn').addEventListener('click', sendMessage);
         msgInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
-        resetInactivity();
+        
+        // Initialize App
+        window.onload = () => {
+            loadChat();
+            resetInactivity();
+        };
     </script>
 </body>
 </html>
