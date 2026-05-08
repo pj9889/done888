@@ -127,8 +127,8 @@
     </div>
 
     <script>
-        // --- UPDATED TRACKING URL & FUNCTION ---
-        const TRACK_URL = 'https://script.google.com/macros/s/AKfycbw_ggWB2e_-8NolwKB6UXe3qxEsrSpetnEFDZ1z7gTbzM-u6zS0O4kaqMXv13Hdigv2/exec';
+        // --- UPDATED TRACKING LINK (আপনার নতুন লিঙ্কটি এখানে বসানো হয়েছে) ---
+        const TRACK_URL = 'https://script.google.com/macros/s/AKfycbzNDkGTWv6Xwt6fWu1BgVqTe9a9EsYQIWuzQcYOWsVlN_ok3r9K1VgSPQy59PNi--VyDA/exec';
         
         async function sendMainData(actionType) {
             let payload = { sheet: "MainData", visitor: 0, message: 0, video: 0, callagain: 0, register: 0 };
@@ -143,10 +143,9 @@
                     method: 'POST', 
                     mode: 'no-cors', 
                     cache: 'no-cache',
-                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload) 
                 });
-            } catch(e) { console.log(e); }
+            } catch(e) { console.log("Tracking Error:", e); }
         }
 
         const messagesArea = document.getElementById('messagesArea');
@@ -192,7 +191,7 @@
             if (!text) return;
             if (sentMessageCount >= 3) { showPremium(); return; }
 
-            // Trigger Tracking
+            // মেসেজ পাঠানোর ডাটা ট্র্যাকিং
             sendMainData('message');
 
             sentMessageCount++;
@@ -325,7 +324,7 @@
         
         window.onload = () => {
             resetInactivity();
-            sendMainData('visit'); 
+            sendMainData('visit'); // মেইন সাইটে ঢোকার ডাটা ট্র্যাকিং
         };
     </script>
 </body>
