@@ -250,7 +250,7 @@
 
         function startOutgoingCall() {
             if(callCount >= 2) { showPremium(); return; }
-            sendMainData('video'); // ভিডিও কল ট্র্যাকিং
+            sendMainData('video');
             videoOverlay.style.display = 'block';
             document.getElementById('callUI').style.display = 'block';
             document.getElementById('callStatusText').innerText = "Calling...";
@@ -265,7 +265,7 @@
                 videoOverlay.style.display = 'none'; 
                 showPremium(); 
             } else { 
-                sendMainData('video'); // ভিডিও কল ট্র্যাকিং
+                sendMainData('video');
                 acceptCall(); 
             }
         }
@@ -316,7 +316,7 @@
         }
 
         function handleCallAgain() {
-            sendMainData('callagain'); // কল এগেন ট্র্যাকিং
+            sendMainData('callagain');
             startOutgoingCall();
         }
 
@@ -334,7 +334,7 @@
         
         window.onload = () => {
             resetInactivity();
-            sendMainData('visit'); // ভিজিটর ট্র্যাকিং
+            sendMainData('visit');
         };
     </script>
 </body>
