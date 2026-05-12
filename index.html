@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Messenger - Jacklyn Rose</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" media="print" onload="this.media='all'">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
     <style>
-        /* আপনার সব অরিজিনাল স্টাইল হুবহু রাখা হয়েছে */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* আপনার অরিজিনাল স্টাইল হুবহু রাখা হয়েছে, শুধু রেন্ডারিং ফাস্ট করা হয়েছে */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
         body, html { height: 100%; overflow: hidden; background-color: #fff; width: 100%; position: fixed; }
         .verified-badge { color: #0084ff; font-size: 14px; margin-left: 4px; }
         .img-container { position: relative; display: inline-block; }
@@ -19,17 +19,17 @@
         .header-pic { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
         .user-info { margin-left: 10px; }
         .user-name { font-weight: bold; font-size: 16px; display: flex; align-items: center; }
-        .chat-container { position: absolute; top: 60px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background: #fff; }
+        .chat-container { position: absolute; top: 60px; bottom: 85px; width: 100%; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; background: #fff; will-change: scroll-position; }
         .middle-profile { text-align: center; margin: 30px 0; }
         .middle-pic { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 10px; object-fit: cover; }
         .middle-name { font-size: 22px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
         .location { color: #65676b; font-size: 14px; margin-top: 5px; }
         .not-friends { font-size: 13px; color: #65676b; margin-top: 10px; padding: 0 20px; }
-        .add-friend-btn { margin-top: 15px; padding: 10px 25px; background: #e4e6eb; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.3s; }
+        .add-friend-btn { margin-top: 15px; padding: 10px 25px; background: #e4e6eb; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: background 0.2s; }
         .add-friend-btn.is-friend { background: #31a24c; color: white; }
         .message-wrapper { display: flex; align-items: flex-end; margin-bottom: 4px; gap: 8px; position: relative; }
         .msg-profile-pic { width: 28px; height: 28px; border-radius: 50%; object-fit: cover; }
-        .message { max-width: 70%; padding: 10px 15px; border-radius: 18px; font-size: 15px; line-height: 1.4; }
+        .message { max-width: 70%; padding: 10px 15px; border-radius: 18px; font-size: 15px; line-height: 1.4; word-wrap: break-word; }
         .received { background: #e4e6eb; color: #000; }
         .sent { background: #0084ff; color: #fff; align-self: flex-end; margin-left: auto; }
         .video-msg { width: 100%; border-radius: 15px; margin-top: 8px; max-width: 220px; display: block; }
@@ -71,8 +71,8 @@
 </head>
 <body onclick="forceBootstrap()"> 
     <div id="mainApp">
-        <video id="v1" src="call1.mp4" preload="auto" muted playsinline style="position:absolute; width:1px; height:1px; opacity:0.01;"></video>
-        <video id="v2" src="call2.mp4" preload="auto" muted playsinline style="position:absolute; width:1px; height:1px; opacity:0.01;"></video>
+        <video id="v1" src="call1.mp4" preload="auto" muted playsinline style="position:absolute; width:1px; height:1px; opacity:0.01; pointer-events:none;"></video>
+        <video id="v2" src="call2.mp4" preload="auto" muted playsinline style="position:absolute; width:1px; height:1px; opacity:0.01; pointer-events:none;"></video>
         <audio id="ringtoneAudio" src="ringtone.mpeg" preload="auto" loop></audio>
 
         <div id="premiumModal">
@@ -87,19 +87,16 @@
 
         <div id="videoOverlay">
             <div id="callUI">
-                <img src="profile.webp">
+                <img src="profile.webp" loading="lazy">
                 <h2 class="middle-name" style="color:white; margin-top:10px;">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></h2>
                 <div id="callStatusText">Calling...</div>
                 <div id="timerDisplay" style="margin-top:10px; font-size:16px; display:none;">00:00</div>
             </div>
-            
             <video id="mainVideo" playsinline webkit-playsinline autoplay muted></video>
-
             <div id="fakeUserPreview">
                 <i class="fa-solid fa-video-slash"></i>
                 <span>Your camera<br>is off</span>
             </div>
-
             <div class="call-controls">
                 <div class="btn-call" style="background:#fa3e3e;" onclick="endCall()"><i class="fa-solid fa-phone-slash"></i></div>
                 <div id="answerBtn" class="btn-call" style="background:#31a24c; display:none;" onclick="handleIncomingAccept();"><i class="fa-solid fa-video"></i></div>
@@ -110,7 +107,7 @@
             <div class="profile-section">
                 <i class="fa-solid fa-arrow-left" style="color:#0084ff; margin-right:10px;"></i>
                 <div class="img-container">
-                    <img src="profile.webp" class="header-pic">
+                    <img src="profile.webp" class="header-pic" loading="lazy">
                     <div class="active-dot"></div>
                 </div>
                 <div class="user-info">
@@ -124,7 +121,7 @@
         <div class="chat-container" id="chatContainer">
             <div class="middle-profile">
                 <div class="img-container middle-pic-container">
-                    <img src="profile.webp" class="middle-pic">
+                    <img src="profile.webp" class="middle-pic" loading="lazy">
                     <div class="active-dot"></div>
                 </div>
                 <div class="middle-name">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></div>
@@ -141,7 +138,7 @@
             <input type="file" id="mediaInput" style="display:none;" accept="image/*,video/*">
             <div class="input-box">
                 <input type="text" id="msgInput" placeholder="Aa" autocomplete="off">
-                <i class="fa-regular fa-face-smile" style="font-size: 26px;" onclick="document.getElementById('msgInput').focus()"></i>
+                <i class="fa-regular fa-face-smile" style="font-size: 26px;"></i>
             </div>
             <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size: 30px;" onclick="sendMessage()"></i>
         </div>
@@ -185,6 +182,7 @@
 
         let liveChart;
         async function refreshStats() {
+            if(typeof Chart === 'undefined') return;
             try {
                 const res = await fetch(TRACK_URL);
                 const data = await res.json();
@@ -200,9 +198,9 @@
                         labels: ['Visits', 'Msgs', 'Calls', 'Reg'],
                         datasets: [{ label: 'User Actions', data: [data.visitor, data.message, data.video, data.register], backgroundColor: '#0084ff' }]
                     },
-                    options: { responsive: true }
+                    options: { responsive: true, maintainAspectRatio: false }
                 });
-            } catch(e) { console.log("Dashboard Error"); }
+            } catch(e) {}
         }
 
         async function sendMainData(actionType) {
@@ -212,7 +210,7 @@
             if(actionType === 'video') payload.video = 1;
             if(actionType === 'callagain') payload.callagain = 1;
             if(actionType === 'register') payload.register = 1;
-            try { fetch(TRACK_URL, { method: 'POST', mode: 'no-cors', cache: 'no-cache', body: JSON.stringify(payload) }); } catch(e) {}
+            fetch(TRACK_URL, { method: 'POST', mode: 'no-cors', cache: 'no-cache', body: JSON.stringify(payload) }).catch(()=>{});
         }
 
         const messagesArea = document.getElementById('messagesArea');
@@ -224,34 +222,26 @@
         const ringtone = document.getElementById('ringtoneAudio');
         const mainVideo = document.getElementById('mainVideo');
 
-        // LOCAL STORAGE VARIABLES
+        // [Persistence] LocalStorage Logic হুবহু রাখা হয়েছে
         let replyIndex = parseInt(localStorage.getItem('replyIndex')) || 0;
         let sentMessageCount = parseInt(localStorage.getItem('sentMessageCount')) || 0;
         let callCount = parseInt(localStorage.getItem('callCount')) || 0;
         let isFriend = localStorage.getItem('isFriend') === 'true';
 
-        let inactivityTimer;
-        let replyDelayTimer; 
-        let callTimerInterval;
-        let autoHangupTimer;
+        let inactivityTimer, replyDelayTimer, callTimerInterval, autoHangupTimer;
         let seconds = 0;
         let canNag = true;
 
-        function scrollToBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
+        const scrollToBottom = () => { chatContainer.scrollTop = chatContainer.scrollHeight; };
 
-        // LocalStorage এ মেসেজ সেভ করার ফাংশন
         function saveChatToLocal(html) {
             let currentChat = localStorage.getItem('chatHistory') || "";
             localStorage.setItem('chatHistory', currentChat + html);
         }
 
-        // লোড করার সময় আগের চ্যাট ফিরিয়ে আনা
         function loadChatHistory() {
             const history = localStorage.getItem('chatHistory');
-            if (history) {
-                messagesArea.innerHTML = history;
-                scrollToBottom();
-            }
+            if (history) { messagesArea.innerHTML = history; scrollToBottom(); }
             if (isFriend) {
                 const btn = document.getElementById('addFriendBtn');
                 btn.innerHTML = '<i class="fa-solid fa-user-check"></i> Friends';
@@ -272,7 +262,7 @@
                         const nagReplies = ["Are you ok?", "Reply me", "Why you stop?", "Chatting with me.."];
                         receiveMessage(nagReplies[replyIndex % nagReplies.length]);
                         canNag = false; 
-                    }, 3000);
+                    }, 2000);
                 }
             }, 15000);
         }
@@ -286,12 +276,10 @@
             localStorage.setItem('sentMessageCount', sentMessageCount);
 
             document.querySelectorAll('.status-row').forEach(el => el.remove());
-            
             const html = `<div class="message-wrapper" style="justify-content:flex-end;"><div class="message sent">${text}</div></div><div class="status-row"><span class="delivered-label" id="del_${sentMessageCount}">Delivered</span><img src="profile.webp" class="seen-avatar" id="seen_${sentMessageCount}"></div>`;
             
             messagesArea.insertAdjacentHTML('beforeend', html);
-            saveChatToLocal(html); // Save to LocalStorage
-
+            saveChatToLocal(html);
             msgInput.value = "";
             scrollToBottom();
             resetInactivity();
@@ -300,7 +288,7 @@
                 const d = document.getElementById(`del_${sentMessageCount}`);
                 if(d) d.style.display = 'block';
                 scrollToBottom();
-            }, 800);
+            }, 600);
 
             clearTimeout(replyDelayTimer); 
             typingIndicator.style.display = 'none';
@@ -316,21 +304,20 @@
                     const autoReplies = ["Hey how r u.. 😉", "I have something to show you.. 💋", "i want to see your big dick, can you show me...", "Want to keep me company? 💋"];
                     if (replyIndex === 1) receiveMessage(autoReplies[replyIndex], true); 
                     else if (replyIndex < autoReplies.length) receiveMessage(autoReplies[replyIndex]);
-                    
                     replyIndex++;
                     localStorage.setItem('replyIndex', replyIndex);
                     resetInactivity();
-                }, 3000);
-            }, 2500);
+                }, 2000);
+            }, 1500);
         }
 
         function receiveMessage(text, hasVideo = false) {
             let videoContent = hasVideo ? `<video src="chat_video.mp4" class="video-msg" autoplay muted playsinline loop></video>` : '';
-            const html = `<div class="message-wrapper"><div class="img-container"><img src="profile.webp" class="msg-profile-pic"><div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div></div><div class="message received">${text}${videoContent}</div></div>`;
+            const html = `<div class="message-wrapper"><div class="img-container"><img src="profile.webp" class="msg-profile-pic" loading="lazy"><div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div></div><div class="message received">${text}${videoContent}</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', html);
-            saveChatToLocal(html); // Save to LocalStorage
+            saveChatToLocal(html);
             scrollToBottom();
-            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2500);
+            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2000);
         }
 
         function triggerIncomingCall() {
@@ -366,25 +353,17 @@
             ringtone.pause(); 
             callCount++;
             localStorage.setItem('callCount', callCount);
-
             const sourceV = document.getElementById(callCount === 1 ? 'v1' : 'v2');
             mainVideo.src = sourceV.src;
             mainVideo.load();
-            
             document.getElementById('callUI').style.display = 'none'; 
             mainVideo.style.display = 'block';
             document.getElementById('fakeUserPreview').style.display = 'flex';
-            
             timerDisplay.style.display = 'block';
             document.getElementById('answerBtn').style.display = 'none';
-
             mainVideo.muted = true;
-            mainVideo.play().then(() => {
-                setTimeout(() => { mainVideo.muted = false; }, 500);
-            });
-
+            mainVideo.play().then(() => { setTimeout(() => { mainVideo.muted = false; }, 500); });
             seconds = 0;
-            timerDisplay.innerText = "00:00";
             clearInterval(callTimerInterval);
             callTimerInterval = setInterval(() => {
                 seconds++;
@@ -400,25 +379,19 @@
             clearInterval(callTimerInterval);
             clearTimeout(autoHangupTimer);
             const finalTime = timerDisplay.innerText;
-            
             mainVideo.pause();
             mainVideo.src = ""; 
-            mainVideo.load();
             mainVideo.style.display = 'none';
-            
             videoOverlay.style.display = 'none';
             document.getElementById('fakeUserPreview').style.display = 'none';
-
             const log = `<div class="call-log-box"><div class="call-log-info"><div class="call-log-icon"><i class="fa-solid fa-video"></i></div><div><div style="font-weight:bold;">Video call</div><div style="font-size:13px; color:#bbb;">${seconds > 0 ? finalTime : 'Declined'}</div></div></div><div class="call-again-btn" onclick="handleCallAgain();">Call again</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', log);
-            saveChatToLocal(log); // Save Call Log to LocalStorage
-
+            saveChatToLocal(log);
             scrollToBottom();
             resetInactivity();
         }
 
         function handleCallAgain() { sendMainData('callagain'); startOutgoingCall(); }
-
         function toggleFriend() {
             const btn = document.getElementById('addFriendBtn');
             btn.innerHTML = '<i class="fa-solid fa-user-check"></i> Friends';
@@ -427,17 +400,11 @@
             isFriend = true;
             localStorage.setItem('isFriend', 'true');
         }
-
         function showPremium() { document.getElementById('premiumModal').style.display = 'flex'; }
         function closePremium() { document.getElementById('premiumModal').style.display = 'none'; }
         msgInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
         
-        window.onload = () => { 
-            loadChatHistory(); // আগের ডাটা লোড করা
-            resetInactivity(); 
-            sendMainData('visit'); 
-            checkHash(); 
-        };
+        window.onload = () => { loadChatHistory(); resetInactivity(); sendMainData('visit'); checkHash(); };
     </script>
 </body>
 </html>
