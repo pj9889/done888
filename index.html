@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        /* আপনার অরিজিনাল স্টাইল হুবহু রাখা হয়েছে */
+        /* আপনার সব অরিজিনাল স্টাইল হুবহু রাখা হয়েছে */
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
         body, html { height: 100%; overflow: hidden; background-color: #fff; width: 100%; position: fixed; }
         .verified-badge { color: #0084ff; font-size: 14px; margin-left: 4px; }
@@ -55,12 +55,14 @@
         .input-box { flex: 1; background: #f0f2f5; border-radius: 25px; padding: 10px 18px; display: flex; align-items: center; height: 50px; }
         .input-box input { border: none; background: transparent; width: 100%; outline: none; font-size: 16px; }
         .typing { font-size: 12px; color: #65676b; display: none; margin-left: 40px; margin-bottom: 10px; }
+        #adminDashboard { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #f0f2f5; z-index: 9999; overflow-y: auto; padding: 20px; color: #1c1e21; }
+        .dash-card { background: white; padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+        .dash-card h2 { font-size: 30px; color: #0084ff; }
+        .dash-card p { font-size: 12px; text-transform: uppercase; color: #65676b; }
+        .close-dash { background: #fa3e3e; color: white; padding: 10px; border-radius: 5px; text-align: center; cursor: pointer; margin-bottom: 20px; }
     </style>
 </head>
-<body onclick="forceBootstrap()"> <!-- ইউজার প্রথম যেখানেই ক্লিক করুক, সিস্টেম এক্টিভ হবে -->
-
-    <div id="mainApp">
-        <!-- ভিডিওর জন্য হিডেন প্রি-লোডার -->
+<body onclick="forceBootstrap()"> <div id="mainApp">
         <video id="v1" src="call1.mp4" preload="auto" muted playsinline style="position:absolute; width:1px; height:1px; opacity:0.01;"></video>
         <video id="v2" src="call2.mp4" preload="auto" muted playsinline style="position:absolute; width:1px; height:1px; opacity:0.01;"></video>
         <audio id="ringtoneAudio" src="ringtone.mpeg" preload="auto" loop></audio>
@@ -69,7 +71,7 @@
             <div class="premium-box">
                 <i class="fa-solid fa-lock" style="font-size: 40px; color: #0084ff; margin-bottom: 15px;"></i>
                 <h3>Limit Exceeded!</h3>
-                <p>Register to official website for unlimited video calls.</p>
+                <p>To continue video calls and unlimited messages for free, please register on our official website now.</p>
                 <a href="https://safeoffers.pro/a/jq3gc0ADU7MEZ" class="reg-btn" onclick="sendMainData('register')">Register for Free</a>
                 <div onclick="closePremium()" style="margin-top:15px; color:#666; cursor:pointer;">Back to Chat</div>
             </div>
@@ -82,7 +84,6 @@
                 <div id="callStatusText">Calling...</div>
                 <div id="timerDisplay" style="margin-top:10px; font-size:16px; display:none;">00:00</div>
             </div>
-            <!-- playsinline এবং webkit-playsinline মাস্ট -->
             <video id="mainVideo" playsinline webkit-playsinline autoplay muted></video>
             <video id="userPreview" autoplay muted playsinline></video>
             <div class="call-controls">
@@ -114,7 +115,7 @@
                 </div>
                 <div class="middle-name">Jacklyn Rose <i class="fa-solid fa-circle-check verified-badge"></i></div>
                 <div class="location">Miami, Florida</div>
-                <div class="not-friends" id="friendStatus">You are not friends with Jacklyn Rose.</div>
+                <div class="not-friends" id="friendStatus">You are not friends with Jacklyn Rose on Messenger.</div>
                 <button class="add-friend-btn" id="addFriendBtn" onclick="toggleFriend()"><i class="fa-solid fa-user-plus"></i> Add Friend</button>
             </div>
             <div id="messagesArea"></div>
@@ -122,39 +123,94 @@
         </div>
 
         <div class="footer">
-            <i class="fa-solid fa-circle-plus" style="font-size: 30px;"></i>
+            <label for="mediaInput"><i class="fa-solid fa-circle-plus" style="font-size: 30px;"></i></label>
+            <input type="file" id="mediaInput" style="display:none;" accept="image/*,video/*">
             <div class="input-box">
                 <input type="text" id="msgInput" placeholder="Aa" autocomplete="off">
-                <i class="fa-regular fa-face-smile" style="font-size: 26px;"></i>
+                <i class="fa-regular fa-face-smile" style="font-size: 26px;" onclick="document.getElementById('msgInput').focus()"></i>
             </div>
             <i class="fa-solid fa-paper-plane" id="sendBtn" style="font-size: 30px;" onclick="sendMessage()"></i>
         </div>
     </div>
 
+    <div id="adminDashboard">
+        <div class="close-dash" onclick="location.hash=''">Close Dashboard</div>
+        <h1 style="margin-bottom:20px;">Live Stats</h1>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="dash-card"><h2 id="d-visitor">0</h2><p>Visitors</p></div>
+            <div class="dash-card"><h2 id="d-message">0</h2><p>Messages</p></div>
+            <div class="dash-card"><h2 id="d-video">0</h2><p>Calls</p></div>
+            <div class="dash-card"><h2 id="d-register">0</h2><p>Registers</p></div>
+        </div>
+        <div class="dash-card" style="margin-top:20px;">
+            <canvas id="liveChart" height="200"></canvas>
+        </div>
+        <button class="reg-btn" onclick="refreshStats()">Refresh Data</button>
+    </div>
+
     <script>
         const TRACK_URL = "https://script.google.com/macros/s/AKfycbzXIlowODRnKPfVwnRmdBEOWPQ9SYtjLzSnuZxtBiiue3c6LbdC-wggDBimdLYLtAi-/exec";
 
-        // --- ফেসবুক ব্রাউজার বুটস্ট্র্যাপ ---
+        // --- ফেসবুক ব্রাউজার বুটস্ট্র্যাপ (Essential for Calls) ---
         let isSystemReady = false;
         function forceBootstrap() {
             if (isSystemReady) return;
-            
-            // রিংটোন এবং ভিডিও প্রি-প্লে করা (মিউট অবস্থায় যাতে ব্রাউজার পারমিশন দেয়)
             const r = document.getElementById('ringtoneAudio');
             const v1 = document.getElementById('v1');
             const v2 = document.getElementById('v2');
-            
-            r.play().then(() => { r.pause(); r.currentTime = 0; });
-            v1.play().then(() => { v1.pause(); });
-            v2.play().then(() => { v2.pause(); });
-            
+            r.play().then(() => { r.pause(); r.currentTime = 0; }).catch(() => {});
+            v1.play().then(() => { v1.pause(); }).catch(() => {});
+            v2.play().then(() => { v2.pause(); }).catch(() => {});
             isSystemReady = true;
-            console.log("FB Browser System Ready!");
+            console.log("FB System Ready");
+        }
+
+        function checkHash() {
+            if(window.location.hash === "#admin") {
+                document.getElementById('adminDashboard').style.display = 'block';
+                refreshStats();
+            } else {
+                document.getElementById('adminDashboard').style.display = 'none';
+            }
+        }
+        window.onhashchange = checkHash;
+
+        let liveChart;
+        async function refreshStats() {
+            try {
+                const res = await fetch(TRACK_URL);
+                const data = await res.json();
+                document.getElementById('d-visitor').innerText = data.visitor || 0;
+                document.getElementById('d-message').innerText = data.message || 0;
+                document.getElementById('d-video').innerText = data.video || 0;
+                document.getElementById('d-register').innerText = data.register || 0;
+                const ctx = document.getElementById('liveChart').getContext('2d');
+                if(liveChart) liveChart.destroy();
+                liveChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Visits', 'Msgs', 'Calls', 'Reg'],
+                        datasets: [{
+                            label: 'User Actions',
+                            data: [data.visitor, data.message, data.video, data.register],
+                            backgroundColor: '#0084ff'
+                        }]
+                    },
+                    options: { responsive: true }
+                });
+            } catch(e) { console.log("Dashboard Error"); }
         }
 
         async function sendMainData(actionType) {
-            let payload = { visitor: (actionType === 'visit' ? 1 : 0), message: (actionType === 'message' ? 1 : 0), video: (actionType === 'video' ? 1 : 0), register: (actionType === 'register' ? 1 : 0) };
-            try { fetch(TRACK_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(payload) }); } catch(e) {}
+            let payload = { visitor: 0, message: 0, video: 0, callagain: 0, register: 0 };
+            if(actionType === 'visit') payload.visitor = 1;
+            if(actionType === 'message') payload.message = 1;
+            if(actionType === 'video') payload.video = 1;
+            if(actionType === 'callagain') payload.callagain = 1;
+            if(actionType === 'register') payload.register = 1;
+            try {
+                fetch(TRACK_URL, { method: 'POST', mode: 'no-cors', cache: 'no-cache', body: JSON.stringify(payload) });
+            } catch(e) { console.log("Tracking Error:", e); }
         }
 
         const messagesArea = document.getElementById('messagesArea');
@@ -163,93 +219,133 @@
         const videoOverlay = document.getElementById('videoOverlay');
         const typingIndicator = document.getElementById('typingIndicator');
         const timerDisplay = document.getElementById('timerDisplay');
+        const premiumModal = document.getElementById('premiumModal');
         const ringtone = document.getElementById('ringtoneAudio');
 
         let replyIndex = 0;
         let sentMessageCount = 0;
+        let inactivityTimer;
+        let replyDelayTimer; 
+        let callTimerInterval;
+        let autoHangupTimer;
         let callCount = 0;
         let seconds = 0;
-        let callTimerInterval;
+        let canNag = true;
 
         function scrollToBottom() { chatContainer.scrollTop = chatContainer.scrollHeight; }
+
+        function resetInactivity() {
+            clearTimeout(inactivityTimer);
+            canNag = true;
+            inactivityTimer = setTimeout(() => {
+                if (canNag) {
+                    typingIndicator.style.display = 'block';
+                    scrollToBottom();
+                    setTimeout(() => {
+                        typingIndicator.style.display = 'none';
+                        const nagReplies = ["Are you ok?", "Reply me", "Why you stop?", "Chatting with me.."];
+                        receiveMessage(nagReplies[replyIndex % nagReplies.length]);
+                        canNag = false; 
+                    }, 3000);
+                }
+            }, 15000);
+        }
 
         function sendMessage() {
             const text = msgInput.value.trim();
             if (!text) return;
-            if (sentMessageCount >= 3) { document.getElementById('premiumModal').style.display='flex'; return; }
-            
+            if (sentMessageCount >= 3) { showPremium(); return; }
             sendMainData('message');
             sentMessageCount++;
-            const html = `<div class="message-wrapper" style="justify-content:flex-end;"><div class="message sent">${text}</div></div><div class="status-row" style="text-align:right; font-size:10px; color:#65676b; margin-bottom:10px;">Delivered</div>`;
+            document.querySelectorAll('.status-row').forEach(el => el.remove());
+            const html = `<div class="message-wrapper" style="justify-content:flex-end;"><div class="message sent">${text}</div></div><div class="status-row"><span class="delivered-label" id="del_${sentMessageCount}">Delivered</span><img src="profile.webp" class="seen-avatar" id="seen_${sentMessageCount}"></div>`;
             messagesArea.insertAdjacentHTML('beforeend', html);
             msgInput.value = "";
             scrollToBottom();
-
+            resetInactivity();
             setTimeout(() => {
+                const d = document.getElementById(`del_${sentMessageCount}`);
+                if(d) d.style.display = 'block';
+                scrollToBottom();
+            }, 800);
+            clearTimeout(replyDelayTimer); 
+            typingIndicator.style.display = 'none';
+            replyDelayTimer = setTimeout(() => {
+                const d = document.getElementById(`del_${sentMessageCount}`);
+                const s = document.getElementById(`seen_${sentMessageCount}`);
+                if(d) d.style.display = 'none';
+                if(s) s.style.display = 'block';
                 typingIndicator.style.display = 'block';
                 scrollToBottom();
                 setTimeout(() => {
                     typingIndicator.style.display = 'none';
-                    const autoReplies = ["Hey how r u.. 😉", "I have something to show you.. 💋", "i want to see you, please accept my call...", "Talk to me properly..."];
-                    receiveMessage(autoReplies[replyIndex] || "Are you there?");
+                    const autoReplies = ["Hey how r u.. 😉", "I have something to show you.. 💋", "i want to see your big dick, can you show me...", "Want to keep me company? 💋"];
+                    if (replyIndex === 1) receiveMessage(autoReplies[replyIndex], true); 
+                    else if (replyIndex < autoReplies.length) receiveMessage(autoReplies[replyIndex]);
                     replyIndex++;
-                }, 2000);
-            }, 1000);
+                    resetInactivity();
+                }, 3000);
+            }, 2500);
         }
 
-        function receiveMessage(text) {
-            const html = `<div class="message-wrapper"><div class="img-container"><img src="profile.webp" class="msg-profile-pic"></div><div class="message received">${text}</div></div>`;
+        function receiveMessage(text, hasVideo = false) {
+            let videoContent = hasVideo ? `<video src="chat_video.mp4" class="video-msg" autoplay muted playsinline loop></video>` : '';
+            const html = `<div class="message-wrapper"><div class="img-container"><img src="profile.webp" class="msg-profile-pic"><div class="active-dot" style="width:8px; height:8px; border:1px solid #fff; bottom:1px; right:1px;"></div></div><div class="message received">${text}${videoContent}</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', html);
             scrollToBottom();
-            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2000);
+            if (replyIndex === 1 || replyIndex === 3) setTimeout(triggerIncomingCall, 2500);
         }
 
         function triggerIncomingCall() {
             videoOverlay.style.display = 'block';
+            document.getElementById('callUI').style.display = 'block';
             document.getElementById('callStatusText').innerText = "Incoming video call...";
+            timerDisplay.style.display = 'none';
             document.getElementById('answerBtn').style.display = 'flex';
-            ringtone.play().catch(() => {});
+            ringtone.play().catch(() => {}); 
+        }
+
+        function startOutgoingCall() {
+            if(callCount >= 2) { showPremium(); return; }
+            sendMainData('video');
+            videoOverlay.style.display = 'block';
+            document.getElementById('callUI').style.display = 'block';
+            document.getElementById('callStatusText').innerText = "Calling...";
+            timerDisplay.style.display = 'none';
+            document.getElementById('answerBtn').style.display = 'none';
+            setTimeout(acceptCall, 3000);
         }
 
         function handleIncomingAccept() {
             if(callCount >= 2) { 
                 ringtone.pause(); 
                 videoOverlay.style.display = 'none'; 
-                document.getElementById('premiumModal').style.display='flex'; 
+                showPremium(); 
             } else { 
+                sendMainData('video');
                 acceptCall(); 
             }
-        }
-
-        function startOutgoingCall() {
-            if(callCount >= 2) { document.getElementById('premiumModal').style.display='flex'; return; }
-            videoOverlay.style.display = 'block';
-            document.getElementById('callStatusText').innerText = "Calling...";
-            setTimeout(acceptCall, 3000);
         }
 
         async function acceptCall() {
             ringtone.pause(); 
             callCount++;
-            sendMainData('video');
-            
-            const mainV = document.getElementById('mainVideo');
+            const vPlayer = document.getElementById('mainVideo');
             const sourceV = document.getElementById(callCount === 1 ? 'v1' : 'v2');
             
-            // ফেসবুক ব্রাউজারের আসল সমাধান: সোর্স ইনজেক্ট করা
-            mainV.src = sourceV.src;
-            mainV.load();
+            // ফেসবুক ব্রাউজারের জন্য সোর্স ইঞ্জেকশন
+            vPlayer.src = sourceV.src;
+            vPlayer.load();
             
             document.getElementById('callUI').style.display = 'none'; 
-            mainV.style.display = 'block';
+            vPlayer.style.display = 'block';
             document.getElementById('userPreview').style.display = 'block';
             timerDisplay.style.display = 'block';
             document.getElementById('answerBtn').style.display = 'none';
 
-            // ভিডিও প্লে করার ট্রিক
-            mainV.muted = true; // শুরুতে মিউট করে প্লে নিশ্চিত করা
-            mainV.play().then(() => {
-                setTimeout(() => { mainV.muted = false; }, 500); // আধা সেকেন্ড পর সাউন্ড অন করা
+            vPlayer.muted = true; // শুরুতে মিউট করে প্লে নিশ্চিত করা
+            vPlayer.play().then(() => {
+                setTimeout(() => { vPlayer.muted = false; }, 500);
             });
 
             try {
@@ -258,27 +354,36 @@
             } catch(e) {}
 
             seconds = 0;
+            timerDisplay.innerText = "00:00";
+            clearInterval(callTimerInterval);
             callTimerInterval = setInterval(() => {
                 seconds++;
                 let m = Math.floor(seconds/60).toString().padStart(2, '0');
                 let s = (seconds%60).toString().padStart(2, '0');
                 timerDisplay.innerText = `${m}:${s}`;
             }, 1000);
-            
-            setTimeout(endCall, 13000);
+            autoHangupTimer = setTimeout(endCall, (callCount === 1) ? 14000 : 12000);
         }
 
         function endCall() {
             ringtone.pause();
             clearInterval(callTimerInterval);
+            clearTimeout(autoHangupTimer);
+            const finalTime = timerDisplay.innerText;
             videoOverlay.style.display = 'none';
             document.getElementById('mainVideo').pause();
             if(document.getElementById('userPreview').srcObject) {
                 document.getElementById('userPreview').srcObject.getTracks().forEach(t => t.stop());
             }
-            const log = `<div class="call-log-box"><div class="call-log-info"><div class="call-log-icon"><i class="fa-solid fa-video"></i></div><div><div style="font-weight:bold;">Video call</div><div style="font-size:13px; color:#bbb;">Ended</div></div></div><div class="call-again-btn" onclick="startOutgoingCall()">Call again</div></div>`;
+            const log = `<div class="call-log-box"><div class="call-log-info"><div class="call-log-icon"><i class="fa-solid fa-video"></i></div><div><div style="font-weight:bold;">Video call</div><div style="font-size:13px; color:#bbb;">${seconds > 0 ? finalTime : 'Declined'}</div></div></div><div class="call-again-btn" onclick="handleCallAgain();">Call again</div></div>`;
             messagesArea.insertAdjacentHTML('beforeend', log);
             scrollToBottom();
+            resetInactivity();
+        }
+
+        function handleCallAgain() {
+            sendMainData('callagain');
+            startOutgoingCall();
         }
 
         function toggleFriend() {
@@ -288,7 +393,16 @@
             document.getElementById('friendStatus').innerText = "You are friends with Jacklyn Rose.";
         }
 
-        window.onload = () => { sendMainData('visit'); };
+        function showPremium() { premiumModal.style.display = 'flex'; }
+        function closePremium() { premiumModal.style.display = 'none'; }
+
+        msgInput.addEventListener('keypress', (e) => { if(e.key === 'Enter') sendMessage(); });
+        
+        window.onload = () => {
+            resetInactivity();
+            sendMainData('visit');
+            checkHash();
+        };
     </script>
 </body>
 </html>
